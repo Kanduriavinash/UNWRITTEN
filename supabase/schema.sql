@@ -72,7 +72,8 @@ create table if not exists public.connections (
 );
 alter table public.connections enable row level security;
 revoke all on public.connections from anon;
-grant select, insert, update on public.connections to authenticated;
+grant select, insert on public.connections to authenticated;
+grant update (status, updated_at) on public.connections to authenticated;
 drop policy if exists "Participants can view their connections" on public.connections;
 create policy "Participants can view their connections" on public.connections for select to authenticated using ((select auth.uid()) in (requester_id, recipient_id));
 drop policy if exists "Requester can send a connection request" on public.connections;

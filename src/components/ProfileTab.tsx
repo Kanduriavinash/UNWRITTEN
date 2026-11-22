@@ -1,0 +1,262 @@
+import React, { useState } from 'react';
+import { UserRound, LockKeyhole, EyeOff, Eye, Check, ShieldCheck } from 'lucide-react';
+import type { CurrentUserProfile } from '../types';
+import { INTEREST_TAGS } from '../data/mockData';
+
+interface ProfileTabProps {
+  user: CurrentUserProfile;
+  onUpdateUser: (updated: CurrentUserProfile) => void;
+  onOpenAuth: () => void;
+}
+
+export const ProfileTab: React.FC<ProfileTabProps> = ({
+  user,
+  onUpdateUser,
+  onOpenAuth
+}) => {
+  const [formData, setFormData] = useState<CurrentUserProfile>({ ...user });
+  const [isSavedAlert, setIsSavedAlert] = useState(false);
+
+  const availableTags = INTEREST_TAGS.filter((t) => t !== 'All');
+
+  const handleToggleTag = (tag: string) => {
+    if (formData.interests.includes(tag)) {
+      setFormData({
+        ...formData,
+        interests: formData.interests.filter((t) => t !== tag)
+      });
+    } else {
+      if (formData.interests.length >= 8) return;
+      setFormData({
+        ...formData,
+        interests: [...formData.interests, tag]
+      });
+    }
+  };
+
+  const handleSave = (e: React.FormEvent) => {
+    e.preventDefault();
+    onUpdateUser(formData);
+    setIsSavedAlert(true);
+    setTimeout(() => setIsSavedAlert(false), 3000);
+  };
+
+  return (
+    <div className="tab-container">
+      <div className="tab-header">
+        <div className="eyebrow">YOUR CAMPUS IDENTITY</div>
+        <h2>My Story & <em>Privacy.</em></h2>
+        <p className="tab-subtitle">
+          Control what fellow students can see, update your interests, and manage your privacy.
+        </p>
+      </div>
+
+      <div className="profile-layout-grid">
+        {/* Left: Edit Form */}
+        <div className="profile-form-pane">
+          <form onSubmit={handleSave} className="profile-editor-card">
+            <div className="form-card-header">
+              <span className="profile-card-icon">
+                <UserRound size={20} />
+              </span>
+              <div>
+                <h3>Edit Profile Details</h3>
+                <span className="form-sub">Visible to eligible campus students</span>
+              </div>
+            </div>
+
+            <div className="input-group">
+              <label>Display Name</label>
+              <input
+                type="text"
+                value={formData.displayName}
+                onChange={(e) => setFormData({ ...formData, displayName: e.target.value })}
+                required
+                maxLength={40}
+              />
+              <span className="input-hint">Your first name or chosen campus nickname.</span>
+            </div>
+
+            <div className="form-two-cols">
+              <div className="input-group">
+                <label>Study Year</label>
+                <select
+                  value={formData.studyYear}
+                  onChange={(e) => setFormData({ ...formData, studyYear: e.target.value })}
+                >
+                  <option value="1st Year">1st Year</option>
+                  <option value="2nd Year">2nd Year</option>
+                  <option value="3rd Year">3rd Year</option>
+                  <option value="4th Year">4th Year</option>
+                  <option value="Postgraduate">Postgraduate</option>
+                </select>
+              </div>
+
+              <div className="input-group">
+                <label>Seeking Intent</label>
+                <select
+                  value={formData.seeking}
+                  onChange={(e) => setFormData({ ...formData, seeking: e.target.value as any })}
+                >
+                  <option value="both">Friendship & Dating</option>
+                  <option value="friendship">Only Friendship</option>
+                  <option value="dating">Only Dating</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="input-group">
+              <label>Department / Major</label>
+              <input
+                type="text"
+                value={formData.course}
+                onChange={(e) => setFormData({ ...formData, course: e.target.value })}
+                placeholder="e.g. Computer Science, Architecture, Literature..."
+                required
+              />
+            </div>
+
+            <div className="input-group">
+              <label>A Little Story Note / Bio</label>
+              <textarea
+                rows={3}
+                value={formData.bio}
+                onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
+                placeholder="What are you currently passionate about or listening to?"
+                maxLength={250}
+              />
+              <span className="input-hint">{formData.bio.length}/250 characters</span>
+            </div>
+
+            <div className="input-group">
+              <label>Your Interests (Tap to add/remove)</label>
+              <div className="interests-picker">
+                {availableTags.map((tag) => {
+                  const isSelected = formData.interests.includes(tag);
+                  return (
+                    <button
+                      type="button"
+                      key={tag}
+                      className={`picker-chip ${isSelected ? 'selected' : ''}`}
+                      onClick={() => handleToggleTag(tag)}
+                    >
+                      {isSelected ? '✓ ' : '+ '}
+                      {tag}
+                    </button>
+                  );
+                })}
+              </div>
+              <span className="input-hint">Select up to 8 interests for match suggestions.</span>
+            </div>
+
+            <div className="input-group private-group">
+              <label className="private-label">
+                <LockKeyhole size={14} /> Private Instagram Handle (Optional)
+              </label>
+              <input
+                type="text"
+                value={formData.instagramHandle}
+                onChange={(e) => setFormData({ ...formData, instagramHandle: e.target.value })}
+                placeholder="@username"
+              />
+              <span className="input-hint highlight-hint">
+                🔒 Strictly private. Never shown on your public profile. Only shared when you explicitly click "Share Instagram" inside a mutual chat.
+              </span>
+            </div>
+
+            <div className="form-submit-row">
+              <button type="submit" className="primary-btn">
+                <Check size={16} /> Save Profile Changes
+              </button>
+              {isSavedAlert && <span className="saved-indicator">Saved successfully!</span>}
+            </div>
+          </form>
+        </div>
+
+        {/* Right: Privacy Controls & Campus Info */}
+        <div className="profile-side-pane">
+          {/* Invisible Mode Card */}
+          <div className="privacy-feature-card">
+            <div className="privacy-card-header">
+              <div className="privacy-icon-wrap">
+                {formData.isInvisible ? <EyeOff size={22} color="#9870b0" /> : <Eye size={22} color="#7652a0" />}
+              </div>
+              <div>
+                <h3>Invisible Mode</h3>
+                <span className="feature-sub">Take a quiet break from campus discovery</span>
+              </div>
+            </div>
+
+            <p className="privacy-desc">
+              When Invisible Mode is enabled, your profile is hidden from the campus Discover feed so no new students can discover you. All your existing chats and matches stay completely active.
+            </p>
+
+            <div className="toggle-row">
+              <label className="switch-control">
+                <input
+                  type="checkbox"
+                  checked={formData.isInvisible}
+                  onChange={(e) => {
+                    const updated = { ...formData, isInvisible: e.target.checked };
+                    setFormData(updated);
+                    onUpdateUser(updated);
+                  }}
+                />
+                <span className="slider round"></span>
+              </label>
+              <span className="toggle-status-text">
+                {formData.isInvisible ? (
+                  <strong className="status-off">Profile Hidden (Invisible)</strong>
+                ) : (
+                  <strong className="status-on">Profile Visible in Campus Feed</strong>
+                )}
+              </span>
+            </div>
+          </div>
+
+          {/* Privacy Rules Breakdown */}
+          <div className="privacy-rules-card">
+            <div className="rules-header">
+              <ShieldCheck size={20} color="#7652a0" />
+              <h3>The UNWRITTEN Privacy Promise</h3>
+            </div>
+
+            <ul className="rules-list">
+              <li>
+                <span className="rule-badge visible">Visible</span>
+                <div>
+                  <strong>Display Name, Study Year, Major, Interests & Bio</strong>
+                  <p>Visible to verified campus students in the Discover feed.</p>
+                </div>
+              </li>
+              <li>
+                <span className="rule-badge private">Protected</span>
+                <div>
+                  <strong>College Email & Student ID</strong>
+                  <p>Used strictly for verification. Never shown to any other student.</p>
+                </div>
+              </li>
+              <li>
+                <span className="rule-badge voluntary">Permission</span>
+                <div>
+                  <strong>Instagram Handle & Personal Contacts</strong>
+                  <p>Never public. Shared only if you deliberately tap "Share Instagram" inside a match chat.</p>
+                </div>
+              </li>
+            </ul>
+          </div>
+
+          {/* Account & Backend info */}
+          <div className="account-info-card">
+            <h4>College Account Status</h4>
+            <p>Signed in as: <strong>{user.email}</strong></p>
+            <p>Institution Domain: <strong>@{user.collegeDomain}</strong></p>
+            <button className="auth-settings-btn" onClick={onOpenAuth}>
+              Supabase Backend / Account Settings →
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};

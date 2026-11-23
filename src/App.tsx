@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Navigation } from './components/Navigation';
 import { BottomNav } from './components/BottomNav';
 import { DiscoverTab } from './components/DiscoverTab';
@@ -12,258 +12,148 @@ import type {
   StudentProfile,
   ConnectionRequest,
   ActiveMatch,
-  CurrentUserProfile,
-  ChatMessage
+  CurrentUserProfile
 } from './types';
 
-import {
-  INITIAL_PROFILES,
-  INITIAL_USER,
-  INITIAL_REQUESTS,
-  INITIAL_MATCHES
-} from './data/mockData';
+import { syncStore } from './lib/syncStore';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<'discover' | 'requests' | 'chats' | 'saved' | 'profile'>('discover');
-  const [profiles] = useState<StudentProfile[]>(INITIAL_PROFILES);
-  const [user, setUser] = useState<CurrentUserProfile>(INITIAL_USER);
-  const [savedIds, setSavedIds] = useState<string[]>(['p3']); // Nila initially saved for demonstration
-  const [sentRequestIds, setSentRequestIds] = useState<string[]>(['p2']); // Aarav already matched
-  const [incomingRequests, setIncomingRequests] = useState<ConnectionRequest[]>(INITIAL_REQUESTS);
+  const [currentUser, setCurrentUser] = useState<CurrentUserProfile>(syncStore.getActivePersona());
+  const [profiles, setProfiles] = useState<StudentProfile[]>([]);
+  const [savedIds, setSavedIds] = useState<string[]>([]);
+  const [incomingRequests, setIncomingRequests] = useState<ConnectionRequest[]>([]);
   const [outgoingRequests, setOutgoingRequests] = useState<ConnectionRequest[]>([]);
-  const [matches, setMatches] = useState<ActiveMatch[]>(INITIAL_MATCHES);
-  const [activeMatchId, setActiveMatchId] = useState<string | null>(INITIAL_MATCHES[0]?.id ?? null);
+  const [matches, setMatches] = useState<ActiveMatch[]>([]);
+  const [activeMatchId, setActiveMatchId] = useState<string | null>(null);
   const [collegeDomain, setCollegeDomain] = useState<string>('campus.edu');
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   const showToast = (msg: string) => {
     setToastMessage(msg);
-    setTimeout(() => setToastMessage(null), 3500);
+    setTimeout(() => setToastMessage(null), 4000);
   };
 
-  // Toggle saving / bookmarking a profile
+  // Synchronize state with syncStore
+  const refreshState = useCallback(() => {
+    const user = syncStore.getActivePersona();
+    setCurrentUser(user);
+
+    const discProfiles = syncStore.getDiscoverProfiles(user.id);
+    setProfiles(discProfiles);
+
+    const incoming = syncStore.getIncomingRequests(user.id);
+    setIncomingRequests(incoming);
+
+    const outgoing = syncStore.getOutgoingRequests(user.id);
+    setOutgoingRequests(outgoing);
+
+    const userMatches = syncStore.getMatches(user.id);
+    setMatches(userMatches);
+
+    const saved = syncStore.getSavedIds(user.id);
+    setSavedIds(saved);
+
+    // If active match no longer exists, select first match
+    if (userMatches.length > 0) {
+      setActiveMatchId((prev) => (userMatches.some((m) => m.id === prev) ? prev : userMatches[0].id));
+    } else {
+      setActiveMatchId(null);
+    }
+  }, []);
+
+  // Listen to cross-tab updates via BroadcastChannel & localStorage
+  useEffect(() => {
+    refreshState();
+    const unsubscribe = syncStore.subscribe(() => {
+      refreshState();
+    });
+    return () => unsubscribe();
+  }, [refreshState]);
+
+  // Handle switching persona in current tab
+  const handleSwitchUser = (userId: string) => {
+    syncStore.setActivePersonaId(userId);
+    refreshState();
+    const newUser = syncStore.getActivePersona();
+    showToast(`Switched active view to ${newUser.displayName}!`);
+  };
+
+  // Toggle saving
   const handleToggleSave = (profileId: string) => {
+    syncStore.toggleSave(currentUser.id, profileId);
+    refreshState();
     if (savedIds.includes(profileId)) {
-      setSavedIds(savedIds.filter((id) => id !== profileId));
       showToast('Profile removed from Saved.');
     } else {
-      setSavedIds([...savedIds, profileId]);
       showToast('Profile saved for quiet reflection ♡');
     }
   };
 
-  // Send a hello / connection request
+  // Send a connection request / hello
   const handleSendHello = (profile: StudentProfile, customNote?: string) => {
-    if (sentRequestIds.includes(profile.id)) return;
-
-    setSentRequestIds([...sentRequestIds, profile.id]);
-
-    const newReq: ConnectionRequest = {
-      id: `req-out-${Date.now()}`,
-      senderId: user.id,
-      senderName: profile.name,
-      senderCourse: `${profile.studyYear} · ${profile.course}`,
-      senderYear: profile.studyYear,
-      senderBio: profile.bio,
-      senderInterests: profile.interests,
-      senderGradient: profile.avatarGradient,
-      senderChar: profile.avatarChar,
-      senderColor: profile.avatarColor,
-      receiverId: profile.id,
-      note: customNote || undefined,
-      status: 'pending',
-      timestamp: 'Just now'
-    };
-
-    setOutgoingRequests([newReq, ...outgoingRequests]);
-    showToast(`Hello sent to ${profile.name}! They will see it in their requests.`);
+    syncStore.sendRequest(currentUser, profile, customNote);
+    refreshState();
+    showToast(`Hello sent to ${profile.name}! They will see it in their Requests tab in real time.`);
   };
 
-  // Accept incoming request -> creates active match!
+  // Accept incoming request
   const handleAcceptRequest = (request: ConnectionRequest) => {
-    // Find or reconstruct profile
-    const originalProfile = profiles.find((p) => p.id === request.senderId) || {
-      id: request.senderId,
-      name: request.senderName,
-      age: 20,
-      course: request.senderCourse,
-      studyYear: request.senderYear,
-      bio: request.senderBio,
-      note: request.note || 'Excited to connect!',
-      interests: request.senderInterests,
-      seeking: 'both' as const,
-      avatarGradient: request.senderGradient,
-      avatarChar: request.senderChar,
-      avatarColor: request.senderColor
-    };
-
-    const newMatch: ActiveMatch = {
-      id: `match-${Date.now()}`,
-      profile: originalProfile,
-      matchedAt: 'Just now',
-      lastMessage: request.note || 'You both connected!',
-      lastMessageTime: 'Just now',
-      unreadCount: 0,
-      messages: [
-        {
-          id: `msg-${Date.now()}`,
-          senderId: request.senderId,
-          text: request.note || `Hey! Happy we connected on UNWRITTEN.`,
-          timestamp: 'Just now'
-        }
-      ]
-    };
-
-    // Remove from incoming requests
-    setIncomingRequests(incomingRequests.filter((r) => r.id !== request.id));
-    setMatches([newMatch, ...matches]);
-    setActiveMatchId(newMatch.id);
+    syncStore.acceptRequest(request.id);
+    refreshState();
     setActiveTab('chats');
     showToast(`Matched with ${request.senderName}! Private chat is open.`);
   };
 
   // Decline incoming request
   const handleDeclineRequest = (requestId: string) => {
-    setIncomingRequests(incomingRequests.filter((r) => r.id !== requestId));
+    syncStore.declineRequest(requestId);
+    refreshState();
     showToast('Request passed.');
   };
 
   // Withdraw outgoing request
   const handleWithdrawRequest = (requestId: string) => {
-    setOutgoingRequests(outgoingRequests.filter((r) => r.id !== requestId));
+    syncStore.withdrawRequest(requestId);
+    refreshState();
     showToast('Connection request withdrawn.');
   };
 
-  // Send message in match chat
+  // Send chat message
   const handleSendMessage = (matchId: string, text: string) => {
-    const newMessage: ChatMessage = {
-      id: `msg-${Date.now()}`,
-      senderId: 'me',
-      text,
-      timestamp: 'Just now'
-    };
-
-    setMatches((prevMatches) =>
-      prevMatches.map((m) => {
-        if (m.id === matchId) {
-          return {
-            ...m,
-            lastMessage: text,
-            lastMessageTime: 'Just now',
-            messages: [...m.messages, newMessage]
-          };
-        }
-        return m;
-      })
-    );
-
-    // Interactive reply simulator
-    setTimeout(() => {
-      const match = matches.find((m) => m.id === matchId);
-      if (!match) return;
-
-      const responses = [
-        `That sounds really nice! I completely agree with you on that.`,
-        `Haha that is so true! We should definitely chat more about this.`,
-        `Oh absolutely. Which library floor or canteen spot do you usually hang out at?`,
-        `I was just thinking about that earlier today! Love the way you think.`
-      ];
-      const randomReply = responses[Math.floor(Math.random() * responses.length)];
-
-      const replyMsg: ChatMessage = {
-        id: `reply-${Date.now()}`,
-        senderId: match.profile.id,
-        text: randomReply,
-        timestamp: 'Just now'
-      };
-
-      setMatches((currMatches) =>
-        currMatches.map((m) => {
-          if (m.id === matchId) {
-            return {
-              ...m,
-              lastMessage: randomReply,
-              lastMessageTime: 'Just now',
-              messages: [...m.messages, replyMsg]
-            };
-          }
-          return m;
-        })
-      );
-    }, 1400);
+    syncStore.sendMessage(matchId, currentUser.id, text);
+    refreshState();
   };
 
-  // Voluntarily share Instagram handle in chat
+  // Voluntarily share Instagram handle
   const handleShareInstagram = (matchId: string) => {
-    const igMessage: ChatMessage = {
-      id: `ig-${Date.now()}`,
-      senderId: 'me',
-      text: `Voluntarily shared Instagram handle: ${user.instagramHandle}`,
-      timestamp: 'Just now',
-      type: 'instagram_share',
-      sharedHandle: user.instagramHandle
-    };
-
-    setMatches((prevMatches) =>
-      prevMatches.map((m) => {
-        if (m.id === matchId) {
-          return {
-            ...m,
-            lastMessage: `Shared Instagram: ${user.instagramHandle}`,
-            lastMessageTime: 'Just now',
-            messages: [...m.messages, igMessage]
-          };
-        }
-        return m;
-      })
-    );
-
+    syncStore.shareInstagram(matchId, currentUser.id, currentUser.instagramHandle || '@student.campus');
+    refreshState();
     showToast('Instagram handle shared privately inside this chat.');
-
-    // Simulated reciprocal response
-    setTimeout(() => {
-      const match = matches.find((m) => m.id === matchId);
-      if (!match) return;
-
-      const replyIgMessage: ChatMessage = {
-        id: `ig-reply-${Date.now()}`,
-        senderId: match.profile.id,
-        text: `Shared their Instagram in return: ${match.profile.instagramHandle || '@student.campus'}`,
-        timestamp: 'Just now',
-        type: 'instagram_share',
-        sharedHandle: match.profile.instagramHandle || '@student.campus'
-      };
-
-      setMatches((currMatches) =>
-        currMatches.map((m) => {
-          if (m.id === matchId) {
-            return {
-              ...m,
-              lastMessage: `Reciprocated Instagram handle`,
-              lastMessageTime: 'Just now',
-              messages: [...m.messages, replyIgMessage]
-            };
-          }
-          return m;
-        })
-      );
-    }, 1800);
   };
 
-  // Unmatch a user
+  // Unmatch
   const handleUnmatch = (matchId: string) => {
-    setMatches(matches.filter((m) => m.id !== matchId));
-    if (activeMatchId === matchId) {
-      setActiveMatchId(null);
-    }
+    syncStore.unmatch(matchId);
+    refreshState();
     showToast('Connection unmatched and removed.');
   };
+
+  // Reset demo
+  const handleResetDemo = () => {
+    syncStore.resetToDefault();
+    refreshState();
+    showToast('Campus demo data reset to default.');
+  };
+
+  // Sent request IDs for current user
+  const sentRequestIds = outgoingRequests.map((r) => r.receiverId);
 
   // Saved profiles list
   const savedProfiles = profiles.filter((p) => savedIds.includes(p.id));
 
-  // Total unread messages count
+  // Total unread / active matches
   const totalUnread = matches.reduce((acc, m) => acc + (m.unreadCount || 0), 0);
 
   return (
@@ -275,6 +165,9 @@ export default function App() {
         incomingCount={incomingRequests.length}
         unreadCount={totalUnread}
         campusDomain={collegeDomain}
+        currentUser={currentUser}
+        onSwitchUser={handleSwitchUser}
+        onResetDemo={handleResetDemo}
       />
 
       {/* Main View Area */}
@@ -286,7 +179,7 @@ export default function App() {
             sentRequestIds={sentRequestIds}
             onToggleSave={handleToggleSave}
             onSendHello={handleSendHello}
-            userInterests={user.interests}
+            userInterests={currentUser.interests}
           />
         )}
 
@@ -309,7 +202,7 @@ export default function App() {
             onSendMessage={handleSendMessage}
             onShareInstagram={handleShareInstagram}
             onUnmatch={handleUnmatch}
-            userInstagramHandle={user.instagramHandle}
+            userInstagramHandle={currentUser.instagramHandle}
           />
         )}
 
@@ -325,10 +218,10 @@ export default function App() {
 
         {activeTab === 'profile' && (
           <ProfileTab
-            user={user}
+            user={currentUser}
             onUpdateUser={(updated) => {
-              setUser(updated);
-              showToast('Profile updated successfully.');
+              setCurrentUser(updated);
+              showToast('Profile updated.');
             }}
             onOpenAuth={() => setAuthModalOpen(true)}
           />
@@ -357,7 +250,7 @@ export default function App() {
         collegeDomain={collegeDomain}
         onUpdateCollegeDomain={(domain) => {
           setCollegeDomain(domain);
-          setUser({ ...user, collegeDomain: domain });
+          setCurrentUser({ ...currentUser, collegeDomain: domain });
         }}
       />
 
@@ -365,9 +258,13 @@ export default function App() {
       <footer className="app-footer">
         <div className="footer-content">
           <span>made for the stories yet to happen ♡</span>
-          <button className="auth-footer-link" onClick={() => setAuthModalOpen(true)}>
-            Campus Auth & Domain Setup
-          </button>
+          <div className="footer-links-row">
+            <button className="auth-footer-link" onClick={() => setAuthModalOpen(true)}>
+              Campus Auth & Domain Setup
+            </button>
+            <span className="dot-sep">·</span>
+            <span className="current-user-tag">Viewing as: {currentUser.displayName}</span>
+          </div>
           <span>UNWRITTEN · CAMPUS EDITION</span>
         </div>
       </footer>

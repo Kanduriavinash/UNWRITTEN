@@ -1,5 +1,7 @@
-import React from 'react';
-import { BookHeart, Compass, Heart, MessageCircle, Bookmark, UserRound, Shield } from 'lucide-react';
+import React, { useState } from 'react';
+import { BookHeart, Compass, Heart, MessageCircle, Bookmark, UserRound, Shield, Users, RefreshCw } from 'lucide-react';
+import { ALL_PERSONAS } from '../lib/syncStore';
+import type { CurrentUserProfile } from '../types';
 
 interface NavigationProps {
   activeTab: 'discover' | 'requests' | 'chats' | 'saved' | 'profile';
@@ -7,6 +9,9 @@ interface NavigationProps {
   incomingCount: number;
   unreadCount: number;
   campusDomain: string;
+  currentUser: CurrentUserProfile;
+  onSwitchUser: (userId: string) => void;
+  onResetDemo: () => void;
 }
 
 export const Navigation: React.FC<NavigationProps> = ({
@@ -14,8 +19,13 @@ export const Navigation: React.FC<NavigationProps> = ({
   setActiveTab,
   incomingCount,
   unreadCount,
-  campusDomain
+  campusDomain,
+  currentUser,
+  onSwitchUser,
+  onResetDemo
 }) => {
+  const [switcherOpen, setSwitcherOpen] = useState(false);
+
   return (
     <header className="nav-header">
       <div className="nav-container">
@@ -44,7 +54,7 @@ export const Navigation: React.FC<NavigationProps> = ({
           >
             <Heart size={17} />
             <span>Requests</span>
-            {incomingCount > 0 && <span className="nav-badge">{incomingCount}</span>}
+            {incomingCount > 0 && <span className="nav-badge pulse">{incomingCount}</span>}
           </button>
 
           <button
@@ -53,7 +63,7 @@ export const Navigation: React.FC<NavigationProps> = ({
           >
             <MessageCircle size={17} />
             <span>Chats</span>
-            {unreadCount > 0 && <span className="nav-badge">{unreadCount}</span>}
+            {unreadCount > 0 && <span className="nav-badge pulse">{unreadCount}</span>}
           </button>
 
           <button
@@ -73,7 +83,64 @@ export const Navigation: React.FC<NavigationProps> = ({
           </button>
         </nav>
 
+        {/* Account Persona Switcher & Campus Badge */}
         <div className="nav-right">
+          <div className="persona-switcher-wrap">
+            <button
+              className="persona-btn"
+              onClick={() => setSwitcherOpen(!switcherOpen)}
+              title="Switch campus account in this tab"
+            >
+              <Users size={14} />
+              <span className="persona-name">Account: <strong>{currentUser.displayName}</strong></span>
+              <span className="persona-arrow">▾</span>
+            </button>
+
+            {switcherOpen && (
+              <div className="persona-dropdown">
+                <div className="dropdown-tip">
+                  <span>💡 Open another tab in your browser and switch to a different student to test live requests & chats between 2 accounts in real time!</span>
+                </div>
+                <div className="dropdown-label">Switch Current Tab Persona:</div>
+                <div className="persona-list">
+                  {ALL_PERSONAS.map((p) => {
+                    const isCurrent = p.id === currentUser.id;
+                    return (
+                      <button
+                        key={p.id}
+                        className={`persona-option ${isCurrent ? 'active' : ''}`}
+                        onClick={() => {
+                          onSwitchUser(p.id);
+                          setSwitcherOpen(false);
+                        }}
+                      >
+                        <div className="option-avatar">
+                          {p.displayName[0]}
+                        </div>
+                        <div className="option-info">
+                          <strong>{p.displayName}</strong>
+                          <span>{p.studyYear} · {p.course.split('&')[0]}</span>
+                        </div>
+                        {isCurrent && <span className="current-check">✓ Active</span>}
+                      </button>
+                    );
+                  })}
+                </div>
+                <div className="dropdown-footer">
+                  <button
+                    className="reset-demo-btn"
+                    onClick={() => {
+                      onResetDemo();
+                      setSwitcherOpen(false);
+                    }}
+                  >
+                    <RefreshCw size={12} /> Reset Campus Data
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+
           <span className="campus-badge" title="Verified Campus Community">
             <Shield size={12} className="shield-icon" />
             <span>@{campusDomain}</span>

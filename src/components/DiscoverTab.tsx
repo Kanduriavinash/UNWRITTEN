@@ -136,50 +136,47 @@ export const DiscoverTab: React.FC<DiscoverTabProps> = ({
         </div>
       </section>
 
-      {/* Discovery Controls */}
-      <section className="discovery-header">
-        <div className="section-title-wrap">
-          <div className="eyebrow">YOUR CORNER OF CAMPUS</div>
-          <h2>People you might <em>click with.</em></h2>
+      {/* Discovery Controls & Vibe Chips */}
+      <section className="discovery-header-unified">
+        <div className="discovery-top-row">
+          <div className="section-title-wrap">
+            <div className="eyebrow">YOUR CORNER OF CAMPUS</div>
+            <h2>People you might <em>click with.</em></h2>
+          </div>
+
+          {/* Intent filter */}
+          <div className="intent-filters">
+            {(['Everyone', 'Friendship', 'Dating'] as SeekingIntent[]).map((tab) => (
+              <button
+                key={tab}
+                className={`filter-btn ${intentFilter === tab ? 'active' : ''}`}
+                onClick={() => setIntentFilter(tab)}
+              >
+                {tab === 'Everyone' ? 'Everyone' : tab === 'Friendship' ? 'Friendships' : 'Meaningful Spark'}
+              </button>
+            ))}
+          </div>
         </div>
 
-        {/* Intent filter */}
-        <div className="intent-filters">
-          {(['Everyone', 'Friendship', 'Dating'] as SeekingIntent[]).map((tab) => (
-            <button
-              key={tab}
-              className={`filter-btn ${intentFilter === tab ? 'active' : ''}`}
-              onClick={() => setIntentFilter(tab)}
-            >
-              {tab === 'Dating' ? 'Spark & Dating' : tab}
-            </button>
-          ))}
-        </div>
-      </section>
-
-      {/* Campus Vibes & Passions Shelf */}
-      <div className="vibe-filter-shelf">
-        <div className="vibe-shelf-header">
-          <span className="vibe-label">FILTER BY CAMPUS VIBE & PASSIONS</span>
-          {selectedTag !== 'All' && (
-            <button className="clear-vibe-btn" onClick={() => setSelectedTag('All')}>
-              Reset to All ✕
-            </button>
-          )}
-        </div>
-        <div className="vibe-pills-row">
+        {/* Clean, Organic Floating Vibe Chips - Flex wrap on desktop so nothing gets clipped! */}
+        <div className="vibe-chips-cluster">
           {VIBE_CATEGORIES.map((v) => (
             <button
               key={v.id}
-              className={`vibe-pill-btn ${selectedTag === v.id ? 'active' : ''}`}
+              className={`vibe-chip-btn ${selectedTag === v.id ? 'active' : ''}`}
               onClick={() => setSelectedTag(v.id)}
             >
               <span className="vibe-icon">{v.icon}</span>
               <span className="vibe-text">{v.label}</span>
             </button>
           ))}
+          {selectedTag !== 'All' && (
+            <button className="vibe-reset-btn" onClick={() => setSelectedTag('All')}>
+              ✕ Reset
+            </button>
+          )}
         </div>
-      </div>
+      </section>
 
       {/* Cards Grid */}
       <div className="profile-cards-grid">
@@ -313,12 +310,6 @@ export const DiscoverTab: React.FC<DiscoverTabProps> = ({
                 <p>{activeStoryModal.bio}</p>
               </div>
 
-              {activeStoryModal.favoriteHangout && (
-                <div className="modal-section">
-                  <div className="section-label">CAMPUS SPOT</div>
-                  <p className="highlight-text">{activeStoryModal.favoriteHangout}</p>
-                </div>
-              )}
 
               {activeStoryModal.musicTaste && (
                 <div className="modal-section">

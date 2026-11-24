@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { BookHeart, Compass, Heart, MessageCircle, Bookmark, UserRound, Shield, Users, RefreshCw, Sparkles, Volume2, VolumeX } from 'lucide-react';
 import { ALL_PERSONAS } from '../lib/syncStore';
 import type { CurrentUserProfile } from '../types';
@@ -31,6 +31,21 @@ export const Navigation: React.FC<NavigationProps> = ({
   onToggleAudio
 }) => {
   const [switcherOpen, setSwitcherOpen] = useState(false);
+  const switcherRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleOutsideClick = (event: MouseEvent) => {
+      if (switcherRef.current && !switcherRef.current.contains(event.target as Node)) {
+        setSwitcherOpen(false);
+      }
+    };
+    if (switcherOpen) {
+      document.addEventListener('mousedown', handleOutsideClick);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleOutsideClick);
+    };
+  }, [switcherOpen]);
 
   return (
     <header className="nav-header">
@@ -120,10 +135,11 @@ export const Navigation: React.FC<NavigationProps> = ({
           </button>
 
           {/* Multi-Account Switcher */}
-          <div className="persona-switcher-wrap">
+          <div className="persona-switcher-wrap" ref={switcherRef}>
             <button
               className="persona-btn"
               onClick={() => setSwitcherOpen(!switcherOpen)}
+              aria-expanded={switcherOpen}
               title="Switch campus account in this tab"
             >
               <Users size={14} />

@@ -77,31 +77,44 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
               <span className="input-hint">Your first name or chosen campus nickname.</span>
             </div>
 
-            <div className="form-two-cols">
-              <div className="input-group">
-                <label>Study Year</label>
-                <select
-                  value={formData.studyYear}
-                  onChange={(e) => setFormData({ ...formData, studyYear: e.target.value })}
-                >
-                  <option value="1st Year">1st Year</option>
-                  <option value="2nd Year">2nd Year</option>
-                  <option value="3rd Year">3rd Year</option>
-                  <option value="4th Year">4th Year</option>
-                  <option value="Postgraduate">Postgraduate</option>
-                </select>
+            <div className="input-group">
+              <label>Study Year</label>
+              <div className="custom-pill-selector" role="radiogroup" aria-label="Study Year">
+                {['1st Year', '2nd Year', '3rd Year', '4th Year', 'Postgraduate'].map((yr) => (
+                  <button
+                    type="button"
+                    key={yr}
+                    className={`custom-pill-opt ${formData.studyYear === yr ? 'active' : ''}`}
+                    onClick={() => setFormData({ ...formData, studyYear: yr })}
+                  >
+                    {formData.studyYear === yr && <span className="pill-dot">✦</span>}
+                    {yr}
+                  </button>
+                ))}
               </div>
+            </div>
 
-              <div className="input-group">
-                <label>Seeking Intent</label>
-                <select
-                  value={formData.seeking}
-                  onChange={(e) => setFormData({ ...formData, seeking: e.target.value as any })}
-                >
-                  <option value="both">Friendship & Dating</option>
-                  <option value="friendship">Only Friendship</option>
-                  <option value="dating">Only Dating</option>
-                </select>
+            <div className="input-group">
+              <label>What are you open to on campus?</label>
+              <div className="custom-intent-cards-row" role="radiogroup" aria-label="Campus Intent">
+                {[
+                  { val: 'both' as const, label: 'Friendship & More', desc: 'Open to kindred spirits & seeing what blooms naturally' },
+                  { val: 'friendship' as const, label: 'Friendships Only', desc: 'Study partners, canteen chai & creative projects' },
+                  { val: 'dating' as const, label: 'Meaningful Spark', desc: 'A quiet, genuine connection with someone special' },
+                ].map((opt) => (
+                  <button
+                    type="button"
+                    key={opt.val}
+                    className={`custom-intent-card ${formData.seeking === opt.val ? 'active' : ''}`}
+                    onClick={() => setFormData({ ...formData, seeking: opt.val })}
+                  >
+                    <div className="intent-card-header">
+                      <span className="intent-card-title">{opt.label}</span>
+                      {formData.seeking === opt.val && <span className="intent-check">✓</span>}
+                    </div>
+                    <p className="intent-card-desc">{opt.desc}</p>
+                  </button>
+                ))}
               </div>
             </div>
 

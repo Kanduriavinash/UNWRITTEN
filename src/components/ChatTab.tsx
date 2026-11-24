@@ -325,17 +325,24 @@ export const ChatTab: React.FC<ChatTabProps> = ({
 
             <div className="hello-modal-body">
               <label className="input-label">Select reason:</label>
-              <select
-                className="select-input"
-                value={reportReason}
-                onChange={(e) => setReportReason(e.target.value)}
-              >
-                <option value="">Choose a reason...</option>
-                <option value="harassment">Harassment or inappropriate behavior</option>
-                <option value="spam">Commercial spam or bot</option>
-                <option value="fake">Fake profile or impersonation</option>
-                <option value="privacy">Attempting to coerce personal private info</option>
-              </select>
+              <div className="custom-report-reasons">
+                {[
+                  { id: 'harassment', label: 'Harassment or inappropriate behavior' },
+                  { id: 'spam', label: 'Commercial spam or bot' },
+                  { id: 'fake', label: 'Fake profile or impersonation' },
+                  { id: 'privacy', label: 'Attempting to coerce personal private info' },
+                ].map((reason) => (
+                  <button
+                    type="button"
+                    key={reason.id}
+                    className={`custom-report-option ${reportReason === reason.id ? 'active' : ''}`}
+                    onClick={() => setReportReason(reason.id)}
+                  >
+                    <span>{reason.label}</span>
+                    {reportReason === reason.id && <span className="option-check">✓</span>}
+                  </button>
+                ))}
+              </div>
 
               <div className="modal-actions-footer">
                 <button

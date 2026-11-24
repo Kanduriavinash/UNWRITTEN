@@ -1,7 +1,22 @@
 import React, { useState } from 'react';
 import { Sparkles, Heart, HeartHandshake, Bookmark, ArrowUpRight, LockKeyhole, MessageSquareQuote, Check } from 'lucide-react';
 import type { StudentProfile, SeekingIntent } from '../types';
-import { INTEREST_TAGS } from '../data/mockData';
+import { soundscape } from '../lib/soundscapes';
+
+const VIBE_CATEGORIES = [
+  { id: 'All', label: 'All Stories', icon: '✨' },
+  { id: 'Chai Stalls', label: 'Chai Stalls', icon: '☕' },
+  { id: 'Coffee Walks', label: 'Coffee Walks', icon: '🚶' },
+  { id: 'Indie Music', label: 'Indie Music', icon: '🎧' },
+  { id: 'Late-night talks', label: 'Late-Night Talks', icon: '🌙' },
+  { id: 'Photography', label: 'Photography', icon: '📸' },
+  { id: 'Film', label: 'Film & Cinema', icon: '🎬' },
+  { id: 'Books', label: 'Books', icon: '📚' },
+  { id: 'Poetry', label: 'Poetry', icon: '✍️' },
+  { id: 'Sketching', label: 'Sketching & Art', icon: '🎨' },
+  { id: 'Astronomy', label: 'Astronomy', icon: '🔭' },
+  { id: 'Nature', label: 'Campus Nature', icon: '🌿' },
+];
 
 interface DiscoverTabProps {
   profiles: StudentProfile[];
@@ -25,6 +40,17 @@ export const DiscoverTab: React.FC<DiscoverTabProps> = ({
   const [activeStoryModal, setActiveStoryModal] = useState<StudentProfile | null>(null);
   const [helloModalProfile, setHelloModalProfile] = useState<StudentProfile | null>(null);
   const [customNote, setCustomNote] = useState<string>('');
+  const [blushAlert, setBlushAlert] = useState<{ name: string; isSaved: boolean } | null>(null);
+
+  const handleSaveToggle = (profile: StudentProfile) => {
+    const nextSaved = !savedIds.includes(profile.id);
+    onToggleSave(profile.id);
+    setBlushAlert({ name: profile.name, isSaved: nextSaved });
+    soundscape.playChime(nextSaved ? 659.25 : 440.0);
+    setTimeout(() => {
+      setBlushAlert((curr) => (curr?.name === profile.name ? null : curr));
+    }, 4500);
+  };
 
   // Filtering
   const filteredProfiles = profiles.filter((profile) => {
@@ -54,6 +80,38 @@ export const DiscoverTab: React.FC<DiscoverTabProps> = ({
 
   return (
     <div className="tab-container">
+      {/* Blushing Secret Bookmark Toast */}
+      {blushAlert && (
+        <aside className="blush-toast-container fade-in-up" role="status" aria-live="polite">
+          <div className="blush-toast-card">
+            <div className="blush-toast-emoji">
+              {blushAlert.isSaved ? '🙈🌸' : '🍃'}
+            </div>
+            <div className="blush-toast-text">
+              <p className="blush-toast-heading">
+                {blushAlert.isSaved ? 'Aha... caught you! 🙈' : 'Bookmark removed'}
+              </p>
+              <p className="blush-toast-sub">
+                {blushAlert.isSaved ? (
+                  <>
+                    You secretly saved <strong>{blushAlert.name}</strong> to your bookmarks. Don't blush... they won't know unless you say hello 😉✨
+                  </>
+                ) : (
+                  <>Removed {blushAlert.name} from your quiet bookmarks.</>
+                )}
+              </p>
+            </div>
+            <button
+              className="blush-toast-dismiss"
+              onClick={() => setBlushAlert(null)}
+              title="Dismiss"
+            >
+              ✕
+            </button>
+          </div>
+        </aside>
+      )}
+
       {/* Hero Welcome */}
       <section className="discover-hero">
         <div className="eyebrow">
@@ -73,7 +131,7 @@ export const DiscoverTab: React.FC<DiscoverTabProps> = ({
           </div>
           <div className="trust-pill intent-pill">
             <HeartHandshake size={14} />
-            <span>Open for friendship, dating, or seeing where things go.</span>
+            <span>Open for friendship, deep talks, or seeing what blooms naturally.</span>
           </div>
         </div>
       </section>
@@ -93,23 +151,34 @@ export const DiscoverTab: React.FC<DiscoverTabProps> = ({
               className={`filter-btn ${intentFilter === tab ? 'active' : ''}`}
               onClick={() => setIntentFilter(tab)}
             >
-              {tab}
+              {tab === 'Dating' ? 'Spark & Dating' : tab}
             </button>
           ))}
         </div>
       </section>
 
-      {/* Interest Tag Filter */}
-      <div className="tags-scroll-container">
-        {INTEREST_TAGS.map((tag) => (
-          <button
-            key={tag}
-            className={`tag-pill ${selectedTag === tag ? 'active' : ''}`}
-            onClick={() => setSelectedTag(tag)}
-          >
-            {tag}
-          </button>
-        ))}
+      {/* Campus Vibes & Passions Shelf */}
+      <div className="vibe-filter-shelf">
+        <div className="vibe-shelf-header">
+          <span className="vibe-label">FILTER BY CAMPUS VIBE & PASSIONS</span>
+          {selectedTag !== 'All' && (
+            <button className="clear-vibe-btn" onClick={() => setSelectedTag('All')}>
+              Reset to All ✕
+            </button>
+          )}
+        </div>
+        <div className="vibe-pills-row">
+          {VIBE_CATEGORIES.map((v) => (
+            <button
+              key={v.id}
+              className={`vibe-pill-btn ${selectedTag === v.id ? 'active' : ''}`}
+              onClick={() => setSelectedTag(v.id)}
+            >
+              <span className="vibe-icon">{v.icon}</span>
+              <span className="vibe-text">{v.label}</span>
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Cards Grid */}
@@ -127,14 +196,14 @@ export const DiscoverTab: React.FC<DiscoverTabProps> = ({
               >
                 <span className="portrait-letter">{p.avatarChar}</span>
                 <span className="card-seeking-badge">
-                  {p.seeking === 'both' ? 'Friendship & Dating' : p.seeking === 'dating' ? 'Dating' : 'Friendship'}
+                  {p.seeking === 'both' ? 'Friendship & More' : p.seeking === 'dating' ? 'Meaningful Spark' : 'Campus Friendship'}
                 </span>
                 <button
                   className={`save-icon-btn ${isSaved ? 'saved' : ''}`}
-                  onClick={() => onToggleSave(p.id)}
-                  title={isSaved ? 'Remove from Saved' : 'Save profile'}
+                  onClick={() => handleSaveToggle(p)}
+                  title={isSaved ? 'Remove from secret bookmarks' : 'Secretly bookmark profile 🙈'}
                 >
-                  <Bookmark size={16} fill={isSaved ? '#806097' : 'none'} />
+                  <Bookmark size={16} fill={isSaved ? '#c084fc' : 'none'} />
                 </button>
               </div>
 

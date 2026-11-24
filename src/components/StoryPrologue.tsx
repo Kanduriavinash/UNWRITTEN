@@ -129,15 +129,20 @@ export const StoryPrologue: React.FC<StoryPrologueProps> = ({ onEnterCampus }) =
               Hundreds of lives moving beside yours, separated only by a silent threshold.
             </p>
 
-            <div className="floating-fragments-row">
-              <div className="fragment-pill f1">
-                <span>✦ The student listening to indie records in the reading room</span>
-              </div>
-              <div className="fragment-pill f2">
-                <span>✦ The playlist you saved thinking of someone</span>
-              </div>
-              <div className="fragment-pill f3">
-                <span>✦ The quiet glance near the design studio</span>
+            <div className="fragments-context-container">
+              <span className="fragments-context-label">
+                Real campus moments happening around you every day:
+              </span>
+              <div className="floating-fragments-row">
+                <div className="fragment-pill f1">
+                  <span>🎧 Someone listening to the same indie playlist in the library</span>
+                </div>
+                <div className="fragment-pill f2">
+                  <span>☕ The familiar stranger you cross paths with at the chai stall</span>
+                </div>
+                <div className="fragment-pill f3">
+                  <span>👀 That quiet glance across the courtyard you never acted on</span>
+                </div>
               </div>
             </div>
 
@@ -181,7 +186,7 @@ export const StoryPrologue: React.FC<StoryPrologueProps> = ({ onEnterCampus }) =
                   <li>✓ Discovered through music, books & quiet passions</li>
                   <li>✓ Personal Instagram & phone stay 100% private</li>
                   <li>✓ Two mutual yeses required before speaking</li>
-                  <li>✓ For friendships, for romance, for real connection</li>
+                  <li>✓ For genuine friendships, late-night talks, and unspoken connections</li>
                 </ul>
               </div>
             </div>
@@ -258,8 +263,8 @@ export const StoryPrologue: React.FC<StoryPrologueProps> = ({ onEnterCampus }) =
                 <span className="portal-text">Step into UNWRITTEN</span>
                 <Compass size={18} className="portal-arrow" />
               </button>
-              <p className="portal-footnote">
-                Verified campus preview · SRMIST / College edition
+              <p className="portal-footnote ready-buddy-line">
+                Are you ready to write your story buddy? ✨
               </p>
             </div>
           </div>

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Sparkles, Heart, HeartHandshake, Bookmark, ArrowUpRight, LockKeyhole, MessageSquareQuote, Check } from 'lucide-react';
 import type { StudentProfile, SeekingIntent } from '../types';
 import { soundscape } from '../lib/soundscapes';
+import { ConstellationMap } from './ConstellationMap';
 
 const VIBE_CATEGORIES = [
   { id: 'All', label: 'All Stories', icon: '✨' },
@@ -37,6 +38,7 @@ export const DiscoverTab: React.FC<DiscoverTabProps> = ({
 }) => {
   const [intentFilter, setIntentFilter] = useState<SeekingIntent>('Everyone');
   const [selectedTag, setSelectedTag] = useState<string>('All');
+  const [viewMode, setViewMode] = useState<'cards' | 'constellation'>('cards');
   const [activeStoryModal, setActiveStoryModal] = useState<StudentProfile | null>(null);
   const [helloModalProfile, setHelloModalProfile] = useState<StudentProfile | null>(null);
   const [customNote, setCustomNote] = useState<string>('');
@@ -144,17 +146,39 @@ export const DiscoverTab: React.FC<DiscoverTabProps> = ({
             <h2>People you might <em>click with.</em></h2>
           </div>
 
-          {/* Intent filter */}
-          <div className="intent-filters">
-            {(['Everyone', 'Friendship', 'Dating'] as SeekingIntent[]).map((tab) => (
+          <div className="discovery-header-actions">
+            {/* View Mode Switcher: Cards Feed vs Stargazer Constellation */}
+            <div className="view-mode-toggle" role="radiogroup" aria-label="View Mode">
               <button
-                key={tab}
-                className={`filter-btn ${intentFilter === tab ? 'active' : ''}`}
-                onClick={() => setIntentFilter(tab)}
+                type="button"
+                className={`view-mode-btn ${viewMode === 'cards' ? 'active' : ''}`}
+                onClick={() => setViewMode('cards')}
+                title="Cards Feed"
               >
-                {tab === 'Everyone' ? 'Everyone' : tab === 'Friendship' ? 'Friendships' : 'Meaningful Spark'}
+                Feed ⊞
               </button>
-            ))}
+              <button
+                type="button"
+                className={`view-mode-btn ${viewMode === 'constellation' ? 'active' : ''}`}
+                onClick={() => setViewMode('constellation')}
+                title="Interactive Campus Constellation Map"
+              >
+                ✦ Constellation
+              </button>
+            </div>
+
+            {/* Intent filter */}
+            <div className="intent-filters">
+              {(['Everyone', 'Friendship', 'Dating'] as SeekingIntent[]).map((tab) => (
+                <button
+                  key={tab}
+                  className={`filter-btn ${intentFilter === tab ? 'active' : ''}`}
+                  onClick={() => setIntentFilter(tab)}
+                >
+                  {tab === 'Everyone' ? 'Everyone' : tab === 'Friendship' ? 'Friendships' : 'Meaningful Spark'}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
 
@@ -178,107 +202,120 @@ export const DiscoverTab: React.FC<DiscoverTabProps> = ({
         </div>
       </section>
 
-      {/* Cards Grid */}
-      <div className="profile-cards-grid">
-        {filteredProfiles.map((p) => {
-          const isSaved = savedIds.includes(p.id);
-          const isHelloSent = sentRequestIds.includes(p.id);
+      {/* Main Content: Constellation Map or Cards Grid */}
+      {viewMode === 'constellation' ? (
+        <ConstellationMap
+          profiles={filteredProfiles}
+          userInterests={userInterests}
+          onOpenStory={(p) => setActiveStoryModal(p)}
+          onOpenHello={(p) => handleOpenHelloModal(p)}
+          sentRequestIds={sentRequestIds}
+        />
+      ) : (
+        <>
+          {/* Cards Grid */}
+          <div className="profile-cards-grid">
+            {filteredProfiles.map((p) => {
+              const isSaved = savedIds.includes(p.id);
+              const isHelloSent = sentRequestIds.includes(p.id);
 
-          return (
-            <article className="profile-card" key={p.id}>
-              {/* Card Header / Portrait */}
-              <div
-                className="card-portrait"
-                style={{ background: p.avatarGradient, color: p.avatarColor }}
-              >
-                <span className="portrait-letter">{p.avatarChar}</span>
-                <span className="card-seeking-badge">
-                  {p.seeking === 'both' ? 'Friendship & More' : p.seeking === 'dating' ? 'Meaningful Spark' : 'Campus Friendship'}
-                </span>
-                <button
-                  className={`save-icon-btn ${isSaved ? 'saved' : ''}`}
-                  onClick={() => handleSaveToggle(p)}
-                  title={isSaved ? 'Remove from secret bookmarks' : 'Secretly bookmark profile 🙈'}
-                >
-                  <Bookmark size={16} fill={isSaved ? '#c084fc' : 'none'} />
-                </button>
-              </div>
+              return (
+                <article className="profile-card" key={p.id}>
+                  {/* Card Header / Portrait */}
+                  <div
+                    className="card-portrait"
+                    style={{ background: p.avatarGradient, color: p.avatarColor }}
+                  >
+                    <span className="portrait-letter">{p.avatarChar}</span>
+                    <span className="card-seeking-badge">
+                      {p.seeking === 'both' ? 'Friendship & More' : p.seeking === 'dating' ? 'Meaningful Spark' : 'Campus Friendship'}
+                    </span>
+                    <button
+                      className={`save-icon-btn ${isSaved ? 'saved' : ''}`}
+                      onClick={() => handleSaveToggle(p)}
+                      title={isSaved ? 'Remove from secret bookmarks' : 'Secretly bookmark profile 🙈'}
+                    >
+                      <Bookmark size={16} fill={isSaved ? '#c084fc' : 'none'} />
+                    </button>
+                  </div>
 
-              {/* Card Body */}
-              <div className="card-body">
-                <div className="card-meta-line">
-                  <span className="meta-text">{p.studyYear}</span>
-                  <span className="meta-dot">·</span>
-                  <span className="meta-text">{p.course}</span>
-                </div>
+                  {/* Card Body */}
+                  <div className="card-body">
+                    <div className="card-meta-line">
+                      <span className="meta-text">{p.studyYear}</span>
+                      <span className="meta-dot">·</span>
+                      <span className="meta-text">{p.course}</span>
+                    </div>
 
-                <div className="card-name-row">
-                  <h3>
-                    {p.name}
-                    <span className="age-tag"> · {p.age}+</span>
-                  </h3>
-                </div>
+                    <div className="card-name-row">
+                      <h3>
+                        {p.name}
+                        <span className="age-tag"> · {p.age}+</span>
+                      </h3>
+                    </div>
 
-                <p className="card-note">“{p.note}”</p>
-                <p className="card-bio">{p.bio}</p>
+                    <p className="card-note">“{p.note}”</p>
+                    <p className="card-bio">{p.bio}</p>
 
-                {/* Interest chips with shared highlight */}
-                <div className="card-tags">
-                  {p.interests.map((interest) => {
-                    const isShared = userInterests.includes(interest);
-                    return (
-                      <span
-                        key={interest}
-                        className={`interest-tag ${isShared ? 'shared' : ''}`}
+                    {/* Interest chips with shared highlight */}
+                    <div className="card-tags">
+                      {p.interests.map((interest) => {
+                        const isShared = userInterests.includes(interest);
+                        return (
+                          <span
+                            key={interest}
+                            className={`interest-tag ${isShared ? 'shared' : ''}`}
+                          >
+                            {isShared && <Sparkles size={11} className="shared-sparkle" />}
+                            {interest}
+                          </span>
+                        );
+                      })}
+                    </div>
+
+                    {/* Action Buttons */}
+                    <div className="card-actions">
+                      <button
+                        className="detail-btn"
+                        onClick={() => setActiveStoryModal(p)}
                       >
-                        {isShared && <Sparkles size={11} className="shared-sparkle" />}
-                        {interest}
-                      </span>
-                    );
-                  })}
-                </div>
+                        Story details
+                      </button>
 
-                {/* Action Buttons */}
-                <div className="card-actions">
-                  <button
-                    className="detail-btn"
-                    onClick={() => setActiveStoryModal(p)}
-                  >
-                    Story details
-                  </button>
+                      <button
+                        className={`hello-btn ${isHelloSent ? 'sent' : ''}`}
+                        onClick={() => handleOpenHelloModal(p)}
+                        disabled={isHelloSent}
+                      >
+                        {isHelloSent ? (
+                          <>
+                            <Check size={14} /> Hello sent
+                          </>
+                        ) : (
+                          <>
+                            Say hello <ArrowUpRight size={14} />
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                </article>
+              );
+            })}
+          </div>
 
-                  <button
-                    className={`hello-btn ${isHelloSent ? 'sent' : ''}`}
-                    onClick={() => handleOpenHelloModal(p)}
-                    disabled={isHelloSent}
-                  >
-                    {isHelloSent ? (
-                      <>
-                        <Check size={14} /> Hello sent
-                      </>
-                    ) : (
-                      <>
-                        Say hello <ArrowUpRight size={14} />
-                      </>
-                    )}
-                  </button>
-                </div>
-              </div>
-            </article>
-          );
-        })}
-      </div>
-
-      {filteredProfiles.length === 0 && (
-        <div className="empty-discovery">
-          <p>No profiles found matching this filter.</p>
-          <button
-            className="reset-filter-btn"
-            onClick={() => { setIntentFilter('Everyone'); setSelectedTag('All'); }}
-          >
-            Reset Filters
-          </button>
-        </div>
+          {filteredProfiles.length === 0 && (
+            <div className="empty-discovery">
+              <p>No profiles found matching this filter.</p>
+              <button
+                className="reset-filter-btn"
+                onClick={() => { setIntentFilter('Everyone'); setSelectedTag('All'); }}
+              >
+                Reset Filters
+              </button>
+            </div>
+          )}
+        </>
       )}
 
       {/* Story Details Modal */}

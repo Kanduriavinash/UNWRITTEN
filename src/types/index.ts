@@ -67,4 +67,5 @@ export interface CurrentUserProfile {
   seeking: 'friendship' | 'dating' | 'both';
   isInvisible: boolean;
   instagramHandle: string;
+  rollNumber?: string;
 }

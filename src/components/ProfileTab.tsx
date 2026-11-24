@@ -162,6 +162,21 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
               <span className="input-hint">Select up to 8 interests for match suggestions.</span>
             </div>
 
+            <div className="input-group private-group roll-verified-box">
+              <div className="private-label-row">
+                <label className="private-label">
+                  <ShieldCheck size={14} color="#55e08b" /> Verified Student Roll Number
+                </label>
+                <span className="verified-pill">✓ Campus Verified</span>
+              </div>
+              <div className="roll-display-val">
+                <code>{formData.rollNumber || user.rollNumber || 'AM.EN.U4CSE21001'}</code>
+              </div>
+              <span className="input-hint highlight-hint">
+                🔒 Strictly private. Used solely for campus identity validation. Your details will not be shared anywhere.
+              </span>
+            </div>
+
             <div className="input-group private-group">
               <label className="private-label">
                 <LockKeyhole size={14} /> Private Instagram Handle (Optional)

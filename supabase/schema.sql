@@ -103,6 +103,84 @@ create policy "Participants can send messages in accepted connections" on public
   )
 );
 
+-- -----------------------------------------------------------------------------
+-- CYBERSECURITY & HARDENING: STRICT ROLL NUMBER VERIFICATION & ATTACK DEFENSE
+-- -----------------------------------------------------------------------------
+
+-- 1. Private Student Credentials Table (Isolated from public API)
+create table if not exists private.student_credentials (
+  user_id uuid primary key references auth.users(id) on delete cascade,
+  roll_number text not null unique check (roll_number ~* '^AM\.[A-Za-z]{2}\.[A-Za-z0-9]{10}$'),
+  instagram_handle text default '',
+  verified_at timestamptz not null default now()
+);
+-- Strictly lock down: Even authenticated users CANNOT select from this table directly
+revoke all on private.student_credentials from public, anon, authenticated;
+
+-- 2. Anti-Spam / Anti-Scraping Rate Limit Constraint
+-- Stops college CS hackers from scripting 1,000 requests per minute
+create or replace function private.check_connection_rate_limit()
+returns trigger
+language plpgsql
+security definer
+as $$
+declare
+  pending_count int;
+begin
+  select count(*) into pending_count
+  from public.connections
+  where requester_id = new.requester_id
+    and created_at > (now() - interval '24 hours');
+
+  if pending_count >= 15 then
+    raise exception 'Campus security rate-limit exceeded: Maximum 15 connection requests per 24 hours.';
+  end if;
+  return new;
+end;
+$$;
+
+drop trigger if exists enforce_connection_rate_limit on public.connections;
+create trigger enforce_connection_rate_limit
+before insert on public.connections
+for each row execute function private.check_connection_rate_limit();
+
+-- 3. Voluntary Instagram Handle Handshake Table
+create table if not exists public.instagram_shares (
+  id uuid primary key default gen_random_uuid(),
+  connection_id uuid not null references public.connections(id) on delete cascade,
+  sharer_id uuid not null references auth.users(id) on delete cascade,
+  handle text not null check (char_length(handle) between 2 and 40),
+  created_at timestamptz not null default now(),
+  constraint unique_share_per_connection unique (connection_id, sharer_id)
+);
+alter table public.instagram_shares enable row level security;
+revoke all on public.instagram_shares from anon;
+grant select, insert on public.instagram_shares to authenticated;
+
+-- RLS: Only mutual accepted match partners can view a shared Instagram handle
+create policy "Only mutual matched partners can read shared Instagram"
+on public.instagram_shares for select to authenticated
+using (
+  exists (
+    select 1 from public.connections c
+    where c.id = connection_id
+      and c.status = 'accepted'
+      and (select auth.uid()) in (c.requester_id, c.recipient_id)
+  )
+);
+
+create policy "Sharer can publish their own Instagram into accepted chat"
+on public.instagram_shares for insert to authenticated
+with check (
+  sharer_id = (select auth.uid())
+  and exists (
+    select 1 from public.connections c
+    where c.id = connection_id
+      and c.status = 'accepted'
+      and (select auth.uid()) in (c.requester_id, c.recipient_id)
+  )
+);
+
 -- Add the exact verified student email domain manually, for example:
 -- insert into private.allowed_email_domains(domain) values ('students.example.edu');
 -- Do not guess this value. Never put a service-role key in frontend code.

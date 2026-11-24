@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import type { FormEvent } from 'react';
 import { LockKeyhole, Mail, ShieldCheck, AlertCircle, Check } from 'lucide-react';
 import { isSupabaseConfigured, supabase } from '../lib/supabase';
+import { validateRollNumber } from '../lib/validation';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -19,6 +20,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   const [mode, setMode] = useState<'signup' | 'signin'>('signup');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [rollNumber, setRollNumber] = useState('');
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState('');
   const [messageType, setMessageType] = useState<'info' | 'error' | 'success'>('info');
@@ -45,6 +47,16 @@ export const AuthModal: React.FC<AuthModalProps> = ({
       setMessage(`Registration is restricted to official student emails ending in @${collegeDomain}.`);
       setMessageType('error');
       return;
+    }
+
+    // Strict Roll Number Verification for new student registration
+    if (mode === 'signup') {
+      const rollCheck = validateRollNumber(rollNumber);
+      if (!rollCheck.isValid) {
+        setMessage(rollCheck.errorMessage || 'Invalid roll number format. Must be AM.XX.XXXXXXXXXX');
+        setMessageType('error');
+        return;
+      }
     }
 
     if (!supabase) {
@@ -167,6 +179,41 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                   required
                 />
               </div>
+
+              {mode === 'signup' && (
+                <div className="input-group roll-input-group">
+                  <label className="roll-label">
+                    <ShieldCheck size={14} className="shield-sparkle" />
+                    <span>Campus Roll Number (Required)</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={rollNumber}
+                    onChange={(e) => setRollNumber(e.target.value.toUpperCase())}
+                    placeholder="AM.XX.XXXXXXXXXX (e.g. AM.EN.U4CSE21001)"
+                    maxLength={16}
+                    required
+                    className="roll-number-input"
+                  />
+                  
+                  {/* Real-time Format Feedback */}
+                  {rollNumber.length > 0 && (
+                    <div className="roll-feedback-row">
+                      <span className={`roll-status-pill ${validateRollNumber(rollNumber).isValid ? 'valid' : 'pending'}`}>
+                        {validateRollNumber(rollNumber).isValid ? '✓ Valid format (AM.XX.XXXXXXXXXX)' : `Format: AM.XX.XXXXXXXXXX (${rollNumber.length}/16)`}
+                      </span>
+                    </div>
+                  )}
+
+                  {/* Mandatory Privacy & Security Reassurance Text */}
+                  <div className="roll-privacy-disclaimer">
+                    <LockKeyhole size={13} className="lock-disclaimer-icon" />
+                    <p>
+                      This is just for checking whether you are from our campus or not, just for security purpose only. Your details will not be shared anywhere.
+                    </p>
+                  </div>
+                </div>
+              )}
 
               <div className="input-group">
                 <label>Password (min 8 characters)</label>

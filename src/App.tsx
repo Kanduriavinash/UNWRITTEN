@@ -8,6 +8,7 @@ import { SavedTab } from './components/SavedTab';
 import { ProfileTab } from './components/ProfileTab';
 import { AuthModal } from './components/AuthModal';
 import { StoryPrologue } from './components/StoryPrologue';
+import { CelestialCanvas } from './components/CelestialCanvas';
 
 import type {
   StudentProfile,
@@ -189,6 +190,9 @@ export default function App() {
 
   return (
     <div className="shell app-root">
+      {/* Living Celestial Particle Backdrop */}
+      <CelestialCanvas interactive={false} />
+
       {/* Top Navigation */}
       <Navigation
         activeTab={activeTab}

@@ -7,6 +7,7 @@ import { ChatTab } from './components/ChatTab';
 import { SavedTab } from './components/SavedTab';
 import { ProfileTab } from './components/ProfileTab';
 import { AuthModal } from './components/AuthModal';
+import { StoryPrologue } from './components/StoryPrologue';
 
 import type {
   StudentProfile,
@@ -16,8 +17,15 @@ import type {
 } from './types';
 
 import { syncStore } from './lib/syncStore';
+import { soundscape } from './lib/soundscapes';
 
 export default function App() {
+  const [showPrologue, setShowPrologue] = useState<boolean>(() => {
+    if (typeof window === 'undefined') return false;
+    return sessionStorage.getItem('unwritten_seen_prologue') !== 'true';
+  });
+  const [isAudioActive, setIsAudioActive] = useState<boolean>(false);
+
   const [activeTab, setActiveTab] = useState<'discover' | 'requests' | 'chats' | 'saved' | 'profile'>('discover');
   const [currentUser, setCurrentUser] = useState<CurrentUserProfile>(syncStore.getActivePersona());
   const [profiles, setProfiles] = useState<StudentProfile[]>([]);
@@ -33,6 +41,20 @@ export default function App() {
   const showToast = (msg: string) => {
     setToastMessage(msg);
     setTimeout(() => setToastMessage(null), 4000);
+  };
+
+  const handleEnterCampus = () => {
+    if (typeof window !== 'undefined') {
+      sessionStorage.setItem('unwritten_seen_prologue', 'true');
+    }
+    setShowPrologue(false);
+    showToast('Welcome to the Campus! Discover people who share your story ♡');
+  };
+
+  const handleToggleAudio = () => {
+    const active = soundscape.toggleMute();
+    setIsAudioActive(active);
+    showToast(active ? '✦ Soundscape: On (Harmonic Drone active)' : '✦ Soundscape: Muted');
   };
 
   // Synchronize state with syncStore
@@ -95,6 +117,7 @@ export default function App() {
   const handleSendHello = (profile: StudentProfile, customNote?: string) => {
     syncStore.sendRequest(currentUser, profile, customNote);
     refreshState();
+    soundscape.playChime(880); // A5 chime
     showToast(`Hello sent to ${profile.name}! They will see it in their Requests tab in real time.`);
   };
 
@@ -102,6 +125,7 @@ export default function App() {
   const handleAcceptRequest = (request: ConnectionRequest) => {
     syncStore.acceptRequest(request.id);
     refreshState();
+    soundscape.playChime(1046.5); // C6 celebratory chime
     setActiveTab('chats');
     showToast(`Matched with ${request.senderName}! Private chat is open.`);
   };
@@ -124,12 +148,14 @@ export default function App() {
   const handleSendMessage = (matchId: string, text: string) => {
     syncStore.sendMessage(matchId, currentUser.id, text);
     refreshState();
+    soundscape.playChime(659.25);
   };
 
   // Voluntarily share Instagram handle
   const handleShareInstagram = (matchId: string) => {
     syncStore.shareInstagram(matchId, currentUser.id, currentUser.instagramHandle || '@student.campus');
     refreshState();
+    soundscape.playChime(987.77); // B5 chime
     showToast('Instagram handle shared privately inside this chat.');
   };
 
@@ -156,6 +182,11 @@ export default function App() {
   // Total unread / active matches
   const totalUnread = matches.reduce((acc, m) => acc + (m.unreadCount || 0), 0);
 
+  // If showing prologue, render the immersive cinematic prologue
+  if (showPrologue) {
+    return <StoryPrologue onEnterCampus={handleEnterCampus} />;
+  }
+
   return (
     <div className="shell app-root">
       {/* Top Navigation */}
@@ -168,6 +199,9 @@ export default function App() {
         currentUser={currentUser}
         onSwitchUser={handleSwitchUser}
         onResetDemo={handleResetDemo}
+        onOpenPrologue={() => setShowPrologue(true)}
+        isAudioActive={isAudioActive}
+        onToggleAudio={handleToggleAudio}
       />
 
       {/* Main View Area */}
@@ -259,6 +293,10 @@ export default function App() {
         <div className="footer-content">
           <span>made for the stories yet to happen ♡</span>
           <div className="footer-links-row">
+            <button className="auth-footer-link" onClick={() => setShowPrologue(true)}>
+              ✦ Experience The Story Prologue
+            </button>
+            <span className="dot-sep">·</span>
             <button className="auth-footer-link" onClick={() => setAuthModalOpen(true)}>
               Campus Auth & Domain Setup
             </button>

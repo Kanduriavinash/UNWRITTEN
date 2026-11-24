@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { BookHeart, Compass, Heart, MessageCircle, Bookmark, UserRound, Shield, Users, RefreshCw } from 'lucide-react';
+import { BookHeart, Compass, Heart, MessageCircle, Bookmark, UserRound, Shield, Users, RefreshCw, Sparkles, Volume2, VolumeX } from 'lucide-react';
 import { ALL_PERSONAS } from '../lib/syncStore';
 import type { CurrentUserProfile } from '../types';
 
@@ -12,6 +12,9 @@ interface NavigationProps {
   currentUser: CurrentUserProfile;
   onSwitchUser: (userId: string) => void;
   onResetDemo: () => void;
+  onOpenPrologue: () => void;
+  isAudioActive: boolean;
+  onToggleAudio: () => void;
 }
 
 export const Navigation: React.FC<NavigationProps> = ({
@@ -22,21 +25,36 @@ export const Navigation: React.FC<NavigationProps> = ({
   campusDomain,
   currentUser,
   onSwitchUser,
-  onResetDemo
+  onResetDemo,
+  onOpenPrologue,
+  isAudioActive,
+  onToggleAudio
 }) => {
   const [switcherOpen, setSwitcherOpen] = useState(false);
 
   return (
     <header className="nav-header">
       <div className="nav-container">
-        <a className="brand" href="#top" onClick={(e) => { e.preventDefault(); setActiveTab('discover'); }}>
-          <span className="brand-icon">
-            <BookHeart size={22} />
-          </span>
-          <span className="brand-text">
-            unwritten<span className="dot">.</span>
-          </span>
-        </a>
+        <div className="brand-group">
+          <a className="brand" href="#top" onClick={(e) => { e.preventDefault(); setActiveTab('discover'); }}>
+            <span className="brand-icon">
+              <BookHeart size={22} />
+            </span>
+            <span className="brand-text">
+              unwritten<span className="dot">.</span>
+            </span>
+          </a>
+
+          {/* Experience The Story Prologue Button */}
+          <button
+            className="prologue-nav-pill"
+            onClick={onOpenPrologue}
+            title="Experience the Story Prologue"
+          >
+            <Sparkles size={13} className="sparkle-spin" />
+            <span>The Story</span>
+          </button>
+        </div>
 
         {/* Desktop Tabs */}
         <nav className="desktop-nav">
@@ -83,8 +101,25 @@ export const Navigation: React.FC<NavigationProps> = ({
           </button>
         </nav>
 
-        {/* Account Persona Switcher & Campus Badge */}
+        {/* Right Section: Soundscape Toggle, Account Persona Switcher, Campus Badge */}
         <div className="nav-right">
+          {/* Soundscape button */}
+          <button
+            className={`nav-sound-btn ${isAudioActive ? 'active' : ''}`}
+            onClick={onToggleAudio}
+            title={isAudioActive ? 'Soundscape On (Click to Mute)' : 'Soundscape Off (Click to Play)'}
+          >
+            {isAudioActive ? <Volume2 size={16} /> : <VolumeX size={16} />}
+            {isAudioActive && (
+              <span className="mini-waves">
+                <span className="mw1" />
+                <span className="mw2" />
+                <span className="mw3" />
+              </span>
+            )}
+          </button>
+
+          {/* Multi-Account Switcher */}
           <div className="persona-switcher-wrap">
             <button
               className="persona-btn"

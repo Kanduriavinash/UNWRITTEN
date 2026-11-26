@@ -1,7 +1,7 @@
 // UNWRITTEN Service Worker
 // Provides offline capability, caching shell assets, and handling campus update notifications.
 
-const CACHE_NAME = 'unwritten-v2.4';
+const CACHE_NAME = 'unwritten-v2.5-bookheart';
 const STATIC_ASSETS = [
   '/',
   '/index.html',

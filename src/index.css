@@ -143,8 +143,18 @@ body {
   width: 40px;
   height: 40px;
   border-radius: 14px;
-  background: rgba(194, 135, 243, 0.15);
+  background: linear-gradient(135deg, rgba(194, 135, 243, 0.22), rgba(30, 16, 48, 0.65));
+  border: 1px solid rgba(192, 132, 252, 0.35);
   color: #d8aefc;
+  box-shadow: 0 0 14px rgba(194, 135, 243, 0.2);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.brand:hover .brand-icon {
+  transform: scale(1.05);
+  border-color: rgba(192, 132, 252, 0.55);
+  box-shadow: 0 0 18px rgba(194, 135, 243, 0.35);
+  color: #f5d0fe;
 }
 
 .dot {

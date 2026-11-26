@@ -249,6 +249,13 @@ body {
   flex-shrink: 0;
 }
 
+.nav-aux-pills {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
 .nav-sound-btn {
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.12);
@@ -2820,7 +2827,12 @@ input:checked + .slider:before {
   font-size: 13px;
   margin-top: 14px;
   cursor: pointer;
-  text-decoration: underline;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.auth-switch-text:hover {
+  color: #ffffff;
 }
 
 /* Campus Roll Number Security & Disclaimer */
@@ -3001,41 +3013,66 @@ input:checked + .slider:before {
 /* Footer */
 .app-footer {
   border-top: 1px solid rgba(255, 255, 255, 0.08);
-  margin-top: 80px;
-  padding: 24px 0 40px;
+  margin-top: 60px;
+  padding: 24px 0 36px;
+  width: 100%;
 }
 
 .footer-content {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  font-size: 12px;
+  flex-wrap: wrap;
+  gap: 16px;
+  font-size: 12.5px;
   color: var(--text-light);
+  max-width: 1380px;
+  margin: 0 auto;
+  padding: 0 16px;
+  box-sizing: border-box;
 }
 
 .footer-links-row {
   display: flex;
   align-items: center;
-  gap: 8px;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 6px 10px;
 }
 
 .dot-sep {
-  opacity: 0.5;
+  opacity: 0.35;
+  color: var(--text-muted);
+  user-select: none;
 }
 
 .current-user-tag {
   font-weight: 600;
-  color: #d8aefc;
+  color: #e2bfff;
+  font-size: 12.5px;
 }
 
 .auth-footer-link {
-  background: none;
+  background: transparent;
   border: none;
-  color: #d8aefc;
-  text-decoration: underline;
+  color: #c4b5fd;
+  text-decoration: none !important;
   cursor: pointer;
   font: inherit;
-  font-size: 12px;
+  font-size: 12.5px;
+  font-weight: 500;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: all 0.18s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.auth-footer-link:hover {
+  color: #ffffff;
+  background: rgba(192, 132, 252, 0.12);
+  text-decoration: none !important;
 }
 
 /* Responsive Media Queries (Mobile, Tablet, Laptop) */
@@ -3054,9 +3091,19 @@ input:checked + .slider:before {
     gap: 6px;
   }
 
-  /* Compact verified badge on laptop/tablet screens to give tabs and account button breathing room */
   .campus-badge {
-    display: none;
+    display: none !important;
+  }
+}
+
+@media (max-width: 1400px) {
+  /* On compact desktop/laptop viewports, tuck auxiliary pills into the user menu to keep the 5 main tabs perfectly spacious with zero clipping */
+  .nav-aux-pills {
+    display: none !important;
+  }
+
+  .campus-badge {
+    display: none !important;
   }
 }
 
@@ -3075,20 +3122,23 @@ input:checked + .slider:before {
   }
 }
 
-@media (max-width: 860px) {
+@media (max-width: 900px) {
   .desktop-nav {
-    gap: 3px;
+    display: none !important;
   }
 
-  .desktop-nav .nav-btn {
-    padding: 6px 9px;
-    font-size: 12px;
-    gap: 4px;
+  .mobile-bottom-nav {
+    display: flex !important;
   }
 
-  .desktop-nav .nav-btn svg {
-    width: 15px;
-    height: 15px;
+  .shell {
+    padding: 0 14px 94px;
+  }
+
+  .footer-content {
+    flex-direction: column;
+    text-align: center;
+    gap: 14px;
   }
 
   .brand-text {
@@ -3098,11 +3148,6 @@ input:checked + .slider:before {
   .brand-icon {
     width: 34px;
     height: 34px;
-  }
-
-  .prologue-nav-pill {
-    padding: 5px 9px;
-    font-size: 10px;
   }
 
   .persona-btn {

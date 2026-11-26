@@ -68,38 +68,6 @@ export const Navigation: React.FC<NavigationProps> = ({
               unwritten<span className="dot">.</span>
             </span>
           </a>
-
-          {/* Experience The Story Prologue Button */}
-          <button
-            className="prologue-nav-pill"
-            onClick={onOpenPrologue}
-            title="Experience the Story Prologue"
-          >
-            <Sparkles size={13} className="sparkle-spin" />
-            <span>The Story</span>
-          </button>
-
-          {/* Campus Help Desk & Guide Button */}
-          <button
-            className="helpdesk-nav-pill"
-            onClick={onOpenHelpDesk}
-            title="Campus Help Desk, Safety & Suggestions"
-          >
-            <HelpCircle size={13} />
-            <span>Help Desk</span>
-          </button>
-
-          {/* Install App Pill */}
-          {!isStandaloneApp && (
-            <button
-              className="install-nav-pill"
-              onClick={onOpenInstall}
-              title="Install UNWRITTEN App on your mobile or desktop"
-            >
-              <Download size={13} />
-              <span>Install App</span>
-            </button>
-          )}
         </div>
 
         {/* Desktop Tabs */}
@@ -147,8 +115,40 @@ export const Navigation: React.FC<NavigationProps> = ({
           </button>
         </nav>
 
-        {/* Right Section: Soundscape Toggle, Notification Bell, Account Persona Switcher, Campus Badge */}
+        {/* Right Section: Aux Action Pills, Soundscape, Notification Bell, Account Persona Switcher, Campus Badge */}
         <div className="nav-right">
+          {/* Quick Aux Action Pills (gracefully tucked on compact viewports, always in dropdown) */}
+          <div className="nav-aux-pills">
+            <button
+              className="prologue-nav-pill"
+              onClick={onOpenPrologue}
+              title="Experience the Story Prologue"
+            >
+              <Sparkles size={13} className="sparkle-spin" />
+              <span>The Story</span>
+            </button>
+
+            <button
+              className="helpdesk-nav-pill"
+              onClick={onOpenHelpDesk}
+              title="Campus Help Desk, Safety & Suggestions"
+            >
+              <HelpCircle size={13} />
+              <span>Help Desk</span>
+            </button>
+
+            {!isStandaloneApp && (
+              <button
+                className="install-nav-pill"
+                onClick={onOpenInstall}
+                title="Install UNWRITTEN App on your mobile or desktop"
+              >
+                <Download size={13} />
+                <span>Install App</span>
+              </button>
+            )}
+          </div>
+
           {/* Notification Bell Button */}
           <button
             className="nav-icon-btn nav-bell-btn"

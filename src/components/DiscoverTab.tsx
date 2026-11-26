@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Sparkles, Heart, HeartHandshake, Bookmark, ArrowUpRight, LockKeyhole, MessageSquareQuote, Check } from 'lucide-react';
+import { Sparkles, Heart, HeartHandshake, Bookmark, ArrowUpRight, LockKeyhole, MessageSquareQuote, Check, HelpCircle, BookHeart } from 'lucide-react';
 import type { StudentProfile, SeekingIntent } from '../types';
 import { soundscape } from '../lib/soundscapes';
 import { ConstellationMap } from './ConstellationMap';
@@ -26,6 +26,8 @@ interface DiscoverTabProps {
   onToggleSave: (profileId: string) => void;
   onSendHello: (profile: StudentProfile, customNote?: string) => void;
   userInterests: string[];
+  onNavigateToProfile?: () => void;
+  onOpenHelpDesk?: () => void;
 }
 
 export const DiscoverTab: React.FC<DiscoverTabProps> = ({
@@ -34,7 +36,9 @@ export const DiscoverTab: React.FC<DiscoverTabProps> = ({
   sentRequestIds,
   onToggleSave,
   onSendHello,
-  userInterests
+  userInterests,
+  onNavigateToProfile,
+  onOpenHelpDesk
 }) => {
   const [intentFilter, setIntentFilter] = useState<SeekingIntent>('Everyone');
   const [selectedTag, setSelectedTag] = useState<string>('All');
@@ -304,7 +308,35 @@ export const DiscoverTab: React.FC<DiscoverTabProps> = ({
             })}
           </div>
 
-          {filteredProfiles.length === 0 && (
+          {profiles.length === 0 ? (
+            <div className="campus-empty-state-card fade-in-up">
+              <div className="empty-sparkle-halo">
+                <Sparkles size={38} className="halo-spin" />
+              </div>
+              <h3>The Campus Canvas is Fresh & Unwritten ✨</h3>
+              <p className="empty-state-desc">
+                You are one of the very first storytellers here! Step into <strong>My Story</strong> to share your passions so peers can discover you, or invite classmates to begin connecting.
+              </p>
+              <div className="empty-state-actions">
+                <button
+                  type="button"
+                  className="empty-cta-btn primary-btn"
+                  onClick={() => onNavigateToProfile?.()}
+                >
+                  <BookHeart size={16} />
+                  <span>Write Your Story in My Story ↗</span>
+                </button>
+                <button
+                  type="button"
+                  className="empty-cta-btn secondary-btn"
+                  onClick={() => onOpenHelpDesk?.()}
+                >
+                  <HelpCircle size={16} />
+                  <span>Campus Help Desk & Guide 💬</span>
+                </button>
+              </div>
+            </div>
+          ) : filteredProfiles.length === 0 ? (
             <div className="empty-discovery">
               <p>No profiles found matching this filter.</p>
               <button
@@ -314,7 +346,7 @@ export const DiscoverTab: React.FC<DiscoverTabProps> = ({
                 Reset Filters
               </button>
             </div>
-          )}
+          ) : null}
         </>
       )}
 

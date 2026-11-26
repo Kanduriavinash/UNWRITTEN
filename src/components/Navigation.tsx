@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { BookHeart, Compass, Heart, MessageCircle, Bookmark, UserRound, Shield, Users, RefreshCw, Sparkles, Volume2, VolumeX } from 'lucide-react';
-import { ALL_PERSONAS } from '../lib/syncStore';
+import { BookHeart, Compass, Heart, MessageCircle, Bookmark, UserRound, Shield, RefreshCw, Sparkles, Volume2, VolumeX, HelpCircle } from 'lucide-react';
 import type { CurrentUserProfile } from '../types';
 
 interface NavigationProps {
@@ -10,9 +9,10 @@ interface NavigationProps {
   unreadCount: number;
   campusDomain: string;
   currentUser: CurrentUserProfile;
-  onSwitchUser: (userId: string) => void;
+  onSwitchUser?: (userId: string) => void;
   onResetDemo: () => void;
   onOpenPrologue: () => void;
+  onOpenHelpDesk: () => void;
   isAudioActive: boolean;
   onToggleAudio: () => void;
 }
@@ -24,9 +24,9 @@ export const Navigation: React.FC<NavigationProps> = ({
   unreadCount,
   campusDomain,
   currentUser,
-  onSwitchUser,
   onResetDemo,
   onOpenPrologue,
+  onOpenHelpDesk,
   isAudioActive,
   onToggleAudio
 }) => {
@@ -68,6 +68,16 @@ export const Navigation: React.FC<NavigationProps> = ({
           >
             <Sparkles size={13} className="sparkle-spin" />
             <span>The Story</span>
+          </button>
+
+          {/* Campus Help Desk & Guide Button */}
+          <button
+            className="helpdesk-nav-pill"
+            onClick={onOpenHelpDesk}
+            title="Campus Help Desk, Safety & Suggestions"
+          >
+            <HelpCircle size={13} />
+            <span>Help Desk</span>
           </button>
         </div>
 
@@ -134,49 +144,85 @@ export const Navigation: React.FC<NavigationProps> = ({
             )}
           </button>
 
-          {/* Multi-Account Switcher */}
+          {/* Student Profile Quick Menu */}
           <div className="persona-switcher-wrap" ref={switcherRef}>
             <button
-              className="persona-btn"
+              className="persona-btn account-profile-btn"
               onClick={() => setSwitcherOpen(!switcherOpen)}
               aria-expanded={switcherOpen}
-              title="Switch campus account in this tab"
+              title="Student Account & Menu"
             >
-              <Users size={14} />
-              <span className="persona-name">Account: <strong>{currentUser.displayName}</strong></span>
+              <div className="account-nav-avatar">
+                {currentUser.displayName && currentUser.displayName !== 'Campus Member'
+                  ? currentUser.displayName[0].toUpperCase()
+                  : '✦'}
+              </div>
+              <span className="persona-name">
+                {currentUser.displayName && currentUser.displayName !== 'Campus Member'
+                  ? currentUser.displayName
+                  : 'My Story'}
+              </span>
               <span className="persona-arrow">▾</span>
             </button>
 
             {switcherOpen && (
-              <div className="persona-dropdown">
-                <div className="dropdown-tip">
-                  <span>💡 Open another tab in your browser and switch to a different student to test live requests & chats between 2 accounts in real time!</span>
+              <div className="persona-dropdown account-profile-dropdown">
+                <div className="account-dropdown-card">
+                  <div className="account-avatar-large">
+                    {currentUser.displayName && currentUser.displayName !== 'Campus Member'
+                      ? currentUser.displayName[0].toUpperCase()
+                      : '✦'}
+                  </div>
+                  <div className="account-details">
+                    <strong className="account-name-text">
+                      {currentUser.displayName && currentUser.displayName !== 'Campus Member'
+                        ? currentUser.displayName
+                        : 'Campus Storyteller'}
+                    </strong>
+                    <span className="account-subtext">
+                      {currentUser.studyYear} · {currentUser.course.split('&')[0]}
+                    </span>
+                    <span className="account-campus-tag">
+                      <Shield size={11} /> @{campusDomain} Verified
+                    </span>
+                  </div>
                 </div>
-                <div className="dropdown-label">Switch Current Tab Persona:</div>
-                <div className="persona-list">
-                  {ALL_PERSONAS.map((p) => {
-                    const isCurrent = p.id === currentUser.id;
-                    return (
-                      <button
-                        key={p.id}
-                        className={`persona-option ${isCurrent ? 'active' : ''}`}
-                        onClick={() => {
-                          onSwitchUser(p.id);
-                          setSwitcherOpen(false);
-                        }}
-                      >
-                        <div className="option-avatar">
-                          {p.displayName[0]}
-                        </div>
-                        <div className="option-info">
-                          <strong>{p.displayName}</strong>
-                          <span>{p.studyYear} · {p.course.split('&')[0]}</span>
-                        </div>
-                        {isCurrent && <span className="current-check">✓ Active</span>}
-                      </button>
-                    );
-                  })}
+
+                <div className="account-dropdown-actions">
+                  <button
+                    className="account-action-item"
+                    onClick={() => {
+                      setActiveTab('profile');
+                      setSwitcherOpen(false);
+                    }}
+                  >
+                    <UserRound size={14} />
+                    <span>View / Edit My Story</span>
+                  </button>
+
+                  <button
+                    className="account-action-item"
+                    onClick={() => {
+                      setSwitcherOpen(false);
+                      onOpenHelpDesk();
+                    }}
+                  >
+                    <HelpCircle size={14} />
+                    <span>Campus Help Desk & Guide</span>
+                  </button>
+
+                  <button
+                    className="account-action-item"
+                    onClick={() => {
+                      setSwitcherOpen(false);
+                      onOpenPrologue();
+                    }}
+                  >
+                    <Sparkles size={14} />
+                    <span>The Story Prologue</span>
+                  </button>
                 </div>
+
                 <div className="dropdown-footer">
                   <button
                     className="reset-demo-btn"
@@ -184,8 +230,9 @@ export const Navigation: React.FC<NavigationProps> = ({
                       onResetDemo();
                       setSwitcherOpen(false);
                     }}
+                    title="Clear cached local student data on this device"
                   >
-                    <RefreshCw size={12} /> Reset Campus Data
+                    <RefreshCw size={12} /> Clear Local Data
                   </button>
                 </div>
               </div>

@@ -7,6 +7,7 @@ import { ChatTab } from './components/ChatTab';
 import { SavedTab } from './components/SavedTab';
 import { ProfileTab } from './components/ProfileTab';
 import { AuthModal } from './components/AuthModal';
+import { HelpDeskModal } from './components/HelpDeskModal';
 import { StoryPrologue } from './components/StoryPrologue';
 import { CelestialCanvas } from './components/CelestialCanvas';
 
@@ -35,8 +36,9 @@ export default function App() {
   const [outgoingRequests, setOutgoingRequests] = useState<ConnectionRequest[]>([]);
   const [matches, setMatches] = useState<ActiveMatch[]>([]);
   const [activeMatchId, setActiveMatchId] = useState<string | null>(null);
-  const [collegeDomain, setCollegeDomain] = useState<string>('campus.edu');
+  const [collegeDomain, setCollegeDomain] = useState<string>('srmist.edu.in');
   const [authModalOpen, setAuthModalOpen] = useState(false);
+  const [helpDeskOpen, setHelpDeskOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   const showToast = (msg: string) => {
@@ -167,11 +169,12 @@ export default function App() {
     showToast('Connection unmatched and removed.');
   };
 
-  // Reset demo
+  // Reset local data
   const handleResetDemo = () => {
     syncStore.resetToDefault();
+    setCurrentUser(syncStore.getActivePersona());
     refreshState();
-    showToast('Campus demo data reset to default.');
+    showToast('Local campus data cleared.');
   };
 
   // Sent request IDs for current user
@@ -204,6 +207,7 @@ export default function App() {
         onSwitchUser={handleSwitchUser}
         onResetDemo={handleResetDemo}
         onOpenPrologue={() => setShowPrologue(true)}
+        onOpenHelpDesk={() => setHelpDeskOpen(true)}
         isAudioActive={isAudioActive}
         onToggleAudio={handleToggleAudio}
       />
@@ -218,6 +222,8 @@ export default function App() {
             onToggleSave={handleToggleSave}
             onSendHello={handleSendHello}
             userInterests={currentUser.interests}
+            onNavigateToProfile={() => setActiveTab('profile')}
+            onOpenHelpDesk={() => setHelpDeskOpen(true)}
           />
         )}
 
@@ -259,7 +265,25 @@ export default function App() {
             user={currentUser}
             onUpdateUser={(updated) => {
               setCurrentUser(updated);
-              showToast('Profile updated.');
+              syncStore.saveActivePersona(updated);
+              // Register student profile in discoverable campus pool
+              syncStore.saveRegisteredProfile({
+                id: updated.id,
+                name: updated.displayName,
+                age: 20,
+                course: updated.course,
+                studyYear: updated.studyYear,
+                bio: updated.bio,
+                note: 'Writing my campus story on UNWRITTEN.',
+                interests: updated.interests,
+                seeking: updated.seeking,
+                avatarGradient: 'linear-gradient(135deg, #eee5f8, #f4eef8)',
+                avatarChar: (updated.displayName || 'C')[0].toUpperCase(),
+                avatarColor: '#7652a0',
+                instagramHandle: updated.instagramHandle
+              });
+              refreshState();
+              showToast('Profile updated & active on campus ♡');
             }}
             onOpenAuth={() => setAuthModalOpen(true)}
           />
@@ -281,6 +305,13 @@ export default function App() {
         </div>
       )}
 
+      {/* Help Desk & Community Guide Modal */}
+      <HelpDeskModal
+        isOpen={helpDeskOpen}
+        onClose={() => setHelpDeskOpen(false)}
+        collegeDomain={collegeDomain}
+      />
+
       {/* Authentication & Domain Modal */}
       <AuthModal
         isOpen={authModalOpen}
@@ -298,7 +329,11 @@ export default function App() {
           <span>made for the stories yet to happen ♡</span>
           <div className="footer-links-row">
             <button className="auth-footer-link" onClick={() => setShowPrologue(true)}>
-              ✦ Experience The Story Prologue
+              ✦ The Story Prologue
+            </button>
+            <span className="dot-sep">·</span>
+            <button className="auth-footer-link" onClick={() => setHelpDeskOpen(true)}>
+              💬 Campus Help Desk & Suggestions
             </button>
             <span className="dot-sep">·</span>
             <button className="auth-footer-link" onClick={() => setAuthModalOpen(true)}>

@@ -1,93 +1,9 @@
-import type { StudentProfile, ConnectionRequest, ActiveMatch, CurrentUserProfile } from '../types';
+import type { StudentProfile, ConnectionRequest, ActiveMatch, CurrentUserProfile, HelpDeskQuery, HelpDeskCategory } from '../types';
 import { INITIAL_PROFILES, INITIAL_USER } from '../data/mockData';
 
-// All campus personas available for multi-account testing
+// Active campus personas (starts clean with current user)
 export const ALL_PERSONAS: CurrentUserProfile[] = [
-  INITIAL_USER,
-  {
-    id: 'p1',
-    displayName: 'Mira',
-    email: 'mira@campus.edu',
-    isVerified: true,
-    collegeDomain: 'campus.edu',
-    course: 'Computer Science & Engineering',
-    studyYear: '2nd Year',
-    bio: 'Coding by morning, hunting for obscure indie bands by twilight. Looking for peaceful minds and good conversations.',
-    interests: ['Indie Music', 'Photography', 'Coffee Walks', 'Late-night coding', 'Vinyl Records'],
-    seeking: 'both',
-    isInvisible: false,
-    instagramHandle: '@mira.offline'
-  },
-  {
-    id: 'p2',
-    displayName: 'Aarav',
-    email: 'aarav@campus.edu',
-    isVerified: true,
-    collegeDomain: 'campus.edu',
-    course: 'Visual Design & Communication',
-    studyYear: '3rd Year',
-    bio: 'Working on short film typography and 35mm film scans. Believes in slow conversations over hot ginger chai.',
-    interests: ['Film', 'Sketching', 'Late-night talks', 'Typography', 'Chai Stalls'],
-    seeking: 'both',
-    isInvisible: false,
-    instagramHandle: '@aarav.frames'
-  },
-  {
-    id: 'p3',
-    displayName: 'Nila',
-    email: 'nila@campus.edu',
-    isVerified: true,
-    collegeDomain: 'campus.edu',
-    course: 'Biotechnology & Genetics',
-    studyYear: '1st Year',
-    bio: 'Fascinated by plant cells and old book smell. Still getting lost between the south campus academic blocks.',
-    interests: ['Books', 'Nature', 'Bad Puns', 'Poetry', 'Botanical Gardens'],
-    seeking: 'friendship',
-    isInvisible: false,
-    instagramHandle: '@nila_reads'
-  },
-  {
-    id: 'p4',
-    displayName: 'Kabir',
-    email: 'kabir@campus.edu',
-    isVerified: true,
-    collegeDomain: 'campus.edu',
-    course: 'Mechanical Engineering',
-    studyYear: '4th Year',
-    bio: 'Formula student teammate, weekend guitarist. Trying to write one decent acoustic melody before graduation.',
-    interests: ['Acoustic Guitar', 'Automotive', 'Astronomy', 'Classic Rock', 'Campus Cycling'],
-    seeking: 'dating',
-    isInvisible: false,
-    instagramHandle: '@kabir_strings'
-  },
-  {
-    id: 'p5',
-    displayName: 'Rhea',
-    email: 'rhea@campus.edu',
-    isVerified: true,
-    collegeDomain: 'campus.edu',
-    course: 'Literature & Philosophy',
-    studyYear: '2nd Year',
-    bio: 'Reading Albert Camus in crowded cafeterias. Tea enthusiast, amateur film reviewer, and collector of postcards.',
-    interests: ['Poetry', 'Chai Stalls', 'Old Bookstores', 'Psychology', 'Film'],
-    seeking: 'both',
-    isInvisible: false,
-    instagramHandle: '@rhea_ink'
-  },
-  {
-    id: 'p6',
-    displayName: 'Dev',
-    email: 'dev@campus.edu',
-    isVerified: true,
-    collegeDomain: 'campus.edu',
-    course: 'Architecture & Urban Planning',
-    studyYear: '3rd Year',
-    bio: 'Obsessed with campus archways, brutalist concrete, and evening shadows. Will sketch your favorite building.',
-    interests: ['Sketching', 'Photography', 'City Walks', 'Coffee Walks', 'Art History'],
-    seeking: 'friendship',
-    isInvisible: false,
-    instagramHandle: '@dev_structures'
-  }
+  INITIAL_USER
 ];
 
 export interface SharedStorageData {
@@ -109,83 +25,61 @@ export interface SharedStorageData {
     timestamp: string;
   }[];
   savedByUser: Record<string, string[]>;
+  registeredProfiles: StudentProfile[];
+  helpDeskQueries: HelpDeskQuery[];
 }
 
-const STORAGE_KEY = 'unwritten_shared_state_v2';
+const STORAGE_KEY = 'unwritten_shared_state_v3';
 const BROADCAST_CHANNEL_NAME = 'unwritten_campus_sync';
 
-// Default initial shared state
+// Default initial shared state for production
 const DEFAULT_SHARED_DATA: SharedStorageData = {
-  requests: [
+  requests: [],
+  matches: [],
+  messages: [],
+  savedByUser: {},
+  registeredProfiles: [],
+  helpDeskQueries: [
     {
-      id: 'req-init-1',
-      senderId: 'p1', // Mira
-      senderName: 'Mira',
-      senderCourse: '2nd Year · Computer Science & Engineering',
-      senderYear: '2nd Year',
-      senderBio: 'Coding by morning, hunting for obscure indie bands by twilight.',
-      senderInterests: ['Indie Music', 'Photography', 'Coffee Walks'],
-      senderGradient: 'linear-gradient(135deg, #e8dff1, #f4e9ec)',
-      senderChar: 'M',
-      senderColor: '#9577aa',
-      receiverId: 'me', // Rohan
-      note: 'Hey! Saw you like indie music and late-night coding too. Would love to swap playlist recommendations!',
-      status: 'pending',
-      timestamp: '15 mins ago'
+      id: 'UNW-1001',
+      category: 'general',
+      name: 'UNWRITTEN Campus Desk',
+      isAnonymous: false,
+      message: 'Welcome to UNWRITTEN! Feel free to suggest any new features, campus spots, or questions here.',
+      status: 'Resolved',
+      timestamp: 'Active'
     }
-  ],
-  matches: [
-    {
-      id: 'match-init-1',
-      userAId: 'me', // Rohan
-      userBId: 'p2', // Aarav
-      matchedAt: 'Yesterday'
-    }
-  ],
-  messages: [
-    {
-      id: 'm1',
-      matchId: 'match-init-1',
-      senderId: 'p2',
-      receiverId: 'me',
-      text: 'Hey! So glad we connected. Your note about typography caught my eye :)',
-      timestamp: 'Yesterday 6:30 PM'
-    },
-    {
-      id: 'm2',
-      matchId: 'match-init-1',
-      senderId: 'me',
-      receiverId: 'p2',
-      text: 'Hey Aarav! Same here, I saw your scans of campus film photography, really beautiful work!',
-      timestamp: 'Yesterday 6:42 PM'
-    },
-    {
-      id: 'm3',
-      matchId: 'match-init-1',
-      senderId: 'p2',
-      receiverId: 'me',
-      text: 'Thank you! If you ever want to check out some 35mm prints or just talk film, let me know.',
-      timestamp: 'Yesterday 7:05 PM'
-    },
-    {
-      id: 'm4',
-      matchId: 'match-init-1',
-      senderId: 'p2',
-      receiverId: 'me',
-      text: 'Let’s grab chai near the design studio this evening!',
-      timestamp: '10:45 AM'
-    }
-  ],
-  savedByUser: {
-    me: ['p3']
-  }
+  ]
 };
+
+const CURRENT_USER_KEY = 'unwritten_current_student_profile';
 
 class CampusSyncStore {
   private channel: BroadcastChannel | null = null;
   private listeners: (() => void)[] = [];
 
   constructor() {
+    // Automatic privacy scrubbing of any legacy user names cached in browser
+    if (typeof window !== 'undefined') {
+      try {
+        for (let i = 0; i < localStorage.length; i++) {
+          const k = localStorage.key(i);
+          if (k && k.startsWith('unwritten_')) {
+            const val = localStorage.getItem(k);
+            if (val && /avinash/i.test(val)) {
+              localStorage.setItem(k, val.replace(/avinash/gi, 'Campus Member'));
+            }
+          }
+        }
+        const sessionVal = sessionStorage.getItem('unwritten_persona_id');
+        if (sessionVal && /avinash/i.test(sessionVal)) {
+          sessionStorage.setItem('unwritten_persona_id', 'me');
+        }
+      } catch {
+        // Ignore storage access errors in restricted iframes
+      }
+    }
+
     if (typeof window !== 'undefined' && 'BroadcastChannel' in window) {
       this.channel = new BroadcastChannel(BROADCAST_CHANNEL_NAME);
       this.channel.onmessage = () => {
@@ -195,29 +89,56 @@ class CampusSyncStore {
 
     if (typeof window !== 'undefined') {
       window.addEventListener('storage', (e) => {
-        if (e.key === STORAGE_KEY) {
+        if (e.key === STORAGE_KEY || e.key === CURRENT_USER_KEY) {
           this.notifyListeners();
         }
       });
     }
   }
 
-  // Active persona for current tab (session-specific)
-  public getActivePersonaId(): string {
-    if (typeof window === 'undefined') return 'me';
-    return sessionStorage.getItem('unwritten_persona_id') || 'me';
+  // Active student profile for current user
+  public getActivePersona(): CurrentUserProfile {
+    if (typeof window !== 'undefined') {
+      try {
+        const stored = localStorage.getItem(CURRENT_USER_KEY);
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (parsed && typeof parsed === 'object') {
+            if (parsed.displayName && /avinash/i.test(parsed.displayName)) {
+              parsed.displayName = 'Campus Member';
+            }
+            return { ...INITIAL_USER, ...parsed };
+          }
+        }
+      } catch {
+        // Fallback to default
+      }
+    }
+    return INITIAL_USER;
   }
 
-  public setActivePersonaId(id: string) {
+  public saveActivePersona(user: CurrentUserProfile) {
     if (typeof window !== 'undefined') {
-      sessionStorage.setItem('unwritten_persona_id', id);
+      try {
+        const sanitized = { ...user };
+        if (sanitized.displayName && /avinash/i.test(sanitized.displayName)) {
+          sanitized.displayName = 'Campus Member';
+        }
+        localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(sanitized));
+      } catch {
+        // Ignore
+      }
       this.notifyListeners();
     }
   }
 
-  public getActivePersona(): CurrentUserProfile {
-    const id = this.getActivePersonaId();
-    return ALL_PERSONAS.find((p) => p.id === id) || ALL_PERSONAS[0];
+  // Legacy persona compatibility
+  public getActivePersonaId(): string {
+    return 'me';
+  }
+
+  public setActivePersonaId(_id: string) {
+    this.notifyListeners();
   }
 
   // Read full shared data
@@ -257,34 +178,80 @@ class CampusSyncStore {
   // Get student profile by ID
   public getProfile(id: string): StudentProfile | null {
     if (id === 'me') {
-      const u = INITIAL_USER;
+      const u = this.getActivePersona();
       return {
         id: 'me',
-        name: u.displayName,
-        age: 21,
-        course: u.course,
-        studyYear: u.studyYear,
-        bio: u.bio,
-        note: 'Building things that connect people.',
-        interests: u.interests,
-        seeking: u.seeking,
+        name: u.displayName || 'Campus Member',
+        age: 20,
+        course: u.course || 'Student',
+        studyYear: u.studyYear || '1st Year',
+        bio: u.bio || '',
+        note: 'Writing my campus story on UNWRITTEN.',
+        interests: u.interests || [],
+        seeking: u.seeking || 'both',
         avatarGradient: 'linear-gradient(135deg, #eee5f8, #f4eef8)',
-        avatarChar: 'R',
+        avatarChar: (u.displayName || 'C')[0].toUpperCase(),
         avatarColor: '#7652a0',
         instagramHandle: u.instagramHandle
       };
     }
+    const data = this.getSharedData();
+    const registered = data.registeredProfiles || [];
+    const found = registered.find((p) => p.id === id);
+    if (found) return found;
     return INITIAL_PROFILES.find((p) => p.id === id) || null;
   }
 
-  // All discoverable profiles for current user
+  // All discoverable profiles for current user from registered campus students
   public getDiscoverProfiles(currentUserId: string): StudentProfile[] {
-    const all = [
-      this.getProfile('me')!,
-      ...INITIAL_PROFILES
-    ];
-    // Exclude self
-    return all.filter((p) => p.id !== currentUserId);
+    const data = this.getSharedData();
+    const registered = data.registeredProfiles || [];
+    // Filter out current user and any incomplete profiles
+    return registered.filter((p) => p.id !== currentUserId && p.name && p.name.trim() !== '');
+  }
+
+  // Save or update a registered campus student profile
+  public saveRegisteredProfile(profile: StudentProfile) {
+    const data = this.getSharedData();
+    const list = data.registeredProfiles || [];
+    const idx = list.findIndex((p) => p.id === profile.id);
+    if (idx >= 0) {
+      list[idx] = profile;
+    } else {
+      list.push(profile);
+    }
+    data.registeredProfiles = list;
+    this.saveSharedData(data);
+  }
+
+  // Submit query or suggestion to Help Desk
+  public submitHelpDeskQuery(query: {
+    category: HelpDeskCategory;
+    name: string;
+    isAnonymous: boolean;
+    email?: string;
+    message: string;
+  }): HelpDeskQuery {
+    const data = this.getSharedData();
+    const newQuery: HelpDeskQuery = {
+      id: `UNW-${Math.floor(1000 + Math.random() * 9000)}`,
+      category: query.category,
+      name: query.isAnonymous ? 'Anonymous Student 🙈' : (query.name || 'Campus Student'),
+      isAnonymous: query.isAnonymous,
+      email: query.email,
+      message: query.message,
+      status: 'Received',
+      timestamp: 'Just now'
+    };
+    data.helpDeskQueries = [newQuery, ...(data.helpDeskQueries || [])];
+    this.saveSharedData(data);
+    return newQuery;
+  }
+
+  // Get all Help Desk queries and suggestions
+  public getHelpDeskQueries(): HelpDeskQuery[] {
+    const data = this.getSharedData();
+    return data.helpDeskQueries || [];
   }
 
   // Incoming requests for current user

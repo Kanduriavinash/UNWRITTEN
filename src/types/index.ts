@@ -69,3 +69,16 @@ export interface CurrentUserProfile {
   instagramHandle: string;
   rollNumber?: string;
 }
+
+export type HelpDeskCategory = 'feature' | 'query' | 'bug' | 'safety' | 'general';
+
+export interface HelpDeskQuery {
+  id: string;
+  category: HelpDeskCategory;
+  name: string;
+  isAnonymous: boolean;
+  email?: string;
+  message: string;
+  status: 'Received' | 'Under Review' | 'Resolved';
+  timestamp: string;
+}

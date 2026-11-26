@@ -1,5 +1,5 @@
 import React from 'react';
-import { Compass, Heart, MessageCircle, Bookmark, UserRound, BarChart3 } from 'lucide-react';
+import { Compass, Heart, MessageCircle, Bookmark, UserRound } from 'lucide-react';
 import type { NavTab } from '../types';
 
 interface BottomNavProps {
@@ -53,14 +53,6 @@ export const BottomNav: React.FC<BottomNavProps> = ({
       >
         <Bookmark size={19} />
         <span>Saved</span>
-      </button>
-
-      <button
-        className={`bottom-tab ${activeTab === 'insights' ? 'active' : ''}`}
-        onClick={() => setActiveTab('insights')}
-      >
-        <BarChart3 size={19} />
-        <span>Insights</span>
       </button>
 
       <button

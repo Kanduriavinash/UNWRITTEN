@@ -1,5 +1,5 @@
 import type { StudentProfile, ConnectionRequest, ActiveMatch, CurrentUserProfile, HelpDeskQuery, HelpDeskCategory } from '../types';
-import { INITIAL_PROFILES, INITIAL_USER } from '../data/mockData';
+import { INITIAL_USER } from '../data/mockData';
 
 // Active campus personas (starts clean with current user)
 export const ALL_PERSONAS: CurrentUserProfile[] = [
@@ -29,16 +29,16 @@ export interface SharedStorageData {
   helpDeskQueries: HelpDeskQuery[];
 }
 
-const STORAGE_KEY = 'unwritten_shared_state_v4';
+const STORAGE_KEY = 'unwritten_shared_state_v5_live';
 const BROADCAST_CHANNEL_NAME = 'unwritten_campus_sync';
 
-// Default initial shared state for production
+// Default initial shared state for production - live real data only
 const DEFAULT_SHARED_DATA: SharedStorageData = {
   requests: [],
   matches: [],
   messages: [],
   savedByUser: {},
-  registeredProfiles: INITIAL_PROFILES,
+  registeredProfiles: [],
   helpDeskQueries: [
     {
       id: 'UNW-1001',
@@ -59,9 +59,18 @@ class CampusSyncStore {
   private listeners: (() => void)[] = [];
 
   constructor() {
-    // Automatic privacy scrubbing of any legacy user names cached in browser
+    // Automatic cleanup of legacy mock data & privacy scrubbing
     if (typeof window !== 'undefined') {
       try {
+        const legacyMockKeys = [
+          'unwritten_shared_state_v4',
+          'unwritten_shared_state_v3',
+          'unwritten_shared_state_v2',
+          'unwritten_shared_state',
+          'unwritten_profiles'
+        ];
+        legacyMockKeys.forEach((key) => localStorage.removeItem(key));
+
         for (let i = 0; i < localStorage.length; i++) {
           const k = localStorage.key(i);
           if (k && k.startsWith('unwritten_')) {
@@ -201,23 +210,15 @@ class CampusSyncStore {
     }
     const data = this.getSharedData();
     const registered = data.registeredProfiles || [];
-    const found = registered.find((p) => p.id === id);
-    if (found) return found;
-    return INITIAL_PROFILES.find((p) => p.id === id) || null;
+    return registered.find((p) => p.id === id) || null;
   }
 
   // All discoverable profiles for current user from registered campus students
   public getDiscoverProfiles(currentUserId: string): StudentProfile[] {
     const data = this.getSharedData();
     const registered = data.registeredProfiles || [];
-    const combined: StudentProfile[] = [...registered];
-    for (const p of INITIAL_PROFILES) {
-      if (!combined.some((item) => item.id === p.id)) {
-        combined.push(p);
-      }
-    }
-    // Filter out current user and any incomplete profiles
-    return combined.filter((p) => p.id !== currentUserId && p.name && p.name.trim() !== '');
+    // Only real registered students (excluding current user and incomplete profiles)
+    return registered.filter((p) => p.id !== currentUserId && p.name && p.name.trim() !== '');
   }
 
   // Save or update a registered campus student profile

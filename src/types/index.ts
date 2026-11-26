@@ -1,5 +1,5 @@
 export type SeekingIntent = 'Everyone' | 'Friendship' | 'Dating';
-export type NavTab = 'discover' | 'requests' | 'chats' | 'saved' | 'insights' | 'profile';
+export type NavTab = 'discover' | 'requests' | 'chats' | 'saved' | 'profile';
 
 export interface StudentProfile {
   id: string;

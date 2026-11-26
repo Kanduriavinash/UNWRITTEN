@@ -20,12 +20,12 @@ const DEFAULT_NOTIFICATIONS: CampusNotification[] = [
   {
     id: 'notif-v24-live',
     type: 'update',
-    title: '✦ UNWRITTEN Version 2.4 Live',
-    body: 'White Tick ID verification, strict gender matching, and 9-set campus insights are now active.',
+    title: '✦ UNWRITTEN Version 2.5 Live',
+    body: 'White Tick ID verification, strict gender matching, and real-time campus connections are now live.',
     timestamp: Date.now() - 1000 * 60 * 35, // 35 mins ago
     read: false,
-    linkTab: 'insights',
-    actionLabel: 'View Insights'
+    linkTab: 'discover',
+    actionLabel: 'Discover'
   },
   {
     id: 'notif-pwa-app',

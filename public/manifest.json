@@ -49,13 +49,6 @@
       "description": "View active mutual chats",
       "url": "/?tab=chats",
       "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
-    },
-    {
-      "name": "Live Insights",
-      "short_name": "Insights",
-      "description": "Live campus analytics and verified stats",
-      "url": "/?tab=insights",
-      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
     }
   ],
   "related_applications": [],

@@ -219,13 +219,43 @@ export const DiscoverTab: React.FC<DiscoverTabProps> = ({
 
       {/* Main Content: Constellation Map or Cards Grid */}
       {viewMode === 'constellation' ? (
-        <ConstellationMap
-          profiles={filteredProfiles}
-          userInterests={userInterests}
-          onOpenStory={(p) => setActiveStoryModal(p)}
-          onOpenHello={(p) => handleOpenHelloModal(p)}
-          sentRequestIds={sentRequestIds}
-        />
+        filteredProfiles.length === 0 ? (
+          <div className="campus-empty-state-card fade-in-up" style={{ margin: '2rem auto' }}>
+            <div className="empty-sparkle-halo">
+              <Sparkles size={38} className="halo-spin" />
+            </div>
+            <h3>The Campus Constellation is Fresh & Unwritten ✨</h3>
+            <p className="empty-state-desc">
+              You are among the very first campus pioneers to enter the sanctuary! As verified students from @am.students.amrita.edu sign up, their stars will illuminate this interactive constellation.
+            </p>
+            <div className="empty-state-actions">
+              <button
+                type="button"
+                className="empty-cta-btn primary-btn"
+                onClick={() => onNavigateToProfile?.()}
+              >
+                <BookHeart size={16} />
+                <span>Write Your Story in My Story ↗</span>
+              </button>
+              <button
+                type="button"
+                className="empty-cta-btn secondary-btn"
+                onClick={() => onOpenHelpDesk?.()}
+              >
+                <HelpCircle size={16} />
+                <span>Campus Help Desk & Guide 💬</span>
+              </button>
+            </div>
+          </div>
+        ) : (
+          <ConstellationMap
+            profiles={filteredProfiles}
+            userInterests={userInterests}
+            onOpenStory={(p) => setActiveStoryModal(p)}
+            onOpenHello={(p) => handleOpenHelloModal(p)}
+            sentRequestIds={sentRequestIds}
+          />
+        )
       ) : (
         <>
           {/* Cards Grid */}
@@ -350,7 +380,7 @@ export const DiscoverTab: React.FC<DiscoverTabProps> = ({
             </div>
           ) : filteredProfiles.length === 0 ? (
             <div className="empty-discovery">
-              <p>No profiles found matching this filter.</p>
+              <p>No campus peers matching this view yet! As more classmates sign up with their institutional @am.students.amrita.edu email, their profiles will appear right here.</p>
               <button
                 className="reset-filter-btn"
                 onClick={() => { setIntentFilter('Everyone'); setSelectedTag('All'); }}

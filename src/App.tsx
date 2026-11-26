@@ -9,7 +9,6 @@ import { ProfileTab } from './components/ProfileTab';
 import { AuthModal } from './components/AuthModal';
 import { CampusAuthView } from './components/CampusAuthView';
 import { HelpDeskModal } from './components/HelpDeskModal';
-import { InsightsTab } from './components/InsightsTab';
 import { StoryPrologue } from './components/StoryPrologue';
 import { CelestialCanvas } from './components/CelestialCanvas';
 import { InstallModal } from './components/InstallModal';
@@ -343,13 +342,6 @@ export default function App() {
           />
         )}
 
-        {activeTab === 'insights' && (
-          <InsightsTab
-            collegeDomain={collegeDomain}
-            onNavigateToDiscover={() => setActiveTab('discover')}
-          />
-        )}
-
         {activeTab === 'profile' && (
           <ProfileTab
             user={currentUser}
@@ -463,10 +455,6 @@ export default function App() {
             )}
             <button className="auth-footer-link" onClick={() => setHelpDeskOpen(true)}>
               💬 Campus Help Desk & Suggestions
-            </button>
-            <span className="dot-sep">·</span>
-            <button className="auth-footer-link" onClick={() => setActiveTab('insights')}>
-              📊 Campus Live Insights
             </button>
             <span className="dot-sep">·</span>
             <button className="auth-footer-link" onClick={() => setAuthModalOpen(true)}>

@@ -321,13 +321,13 @@ export const DiscoverTab: React.FC<DiscoverTabProps> = ({
       {/* Story Details Modal */}
       {activeStoryModal && (
         <div className="modal-overlay" onClick={() => setActiveStoryModal(null)}>
-          <div className="story-modal-card" onClick={(e) => e.stopPropagation()}>
+          <div className="story-modal-card" role="dialog" aria-modal="true" aria-label={`Story of ${activeStoryModal.name}`} onClick={(e) => e.stopPropagation()}>
             <div
               className="modal-banner"
               style={{ background: activeStoryModal.avatarGradient, color: activeStoryModal.avatarColor }}
             >
               <span className="modal-avatar-char">{activeStoryModal.avatarChar}</span>
-              <button className="modal-close-btn" onClick={() => setActiveStoryModal(null)}>×</button>
+              <button className="modal-close-btn" aria-label="Close story" onClick={() => setActiveStoryModal(null)}>×</button>
             </div>
 
             <div className="modal-content">
@@ -398,7 +398,7 @@ export const DiscoverTab: React.FC<DiscoverTabProps> = ({
       {/* Say Hello Note Modal */}
       {helloModalProfile && (
         <div className="modal-overlay" onClick={() => setHelloModalProfile(null)}>
-          <div className="story-modal-card hello-modal" onClick={(e) => e.stopPropagation()}>
+          <div className="story-modal-card hello-modal" role="dialog" aria-modal="true" aria-label={`Say hello to ${helloModalProfile.name}`} onClick={(e) => e.stopPropagation()}>
             <div className="hello-modal-header">
               <span className="hello-modal-icon">
                 <Heart size={20} />
@@ -407,7 +407,7 @@ export const DiscoverTab: React.FC<DiscoverTabProps> = ({
                 <h3>Say hello to {helloModalProfile.name}</h3>
                 <p className="modal-sub">Connections only happen when both students accept.</p>
               </div>
-              <button className="modal-close-btn" onClick={() => setHelloModalProfile(null)}>×</button>
+              <button className="modal-close-btn" aria-label="Close" onClick={() => setHelloModalProfile(null)}>×</button>
             </div>
 
             <div className="hello-modal-body">

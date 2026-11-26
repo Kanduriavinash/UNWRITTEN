@@ -105,12 +105,12 @@ export default function App() {
 
   // Toggle saving
   const handleToggleSave = (profileId: string) => {
+    const isCurrentlySaved = savedIds.includes(profileId);
     syncStore.toggleSave(currentUser.id, profileId);
     refreshState();
-    if (savedIds.includes(profileId)) {
-      showToast('Profile removed from Saved.');
-    } else {
-      showToast('Profile saved for quiet reflection ♡');
+    // Only show generic toast if user is on the Saved tab (Discover tab has its own blush toast)
+    if (activeTab === 'saved') {
+      showToast(isCurrentlySaved ? 'Profile removed from Saved.' : 'Profile saved for quiet reflection ♡');
     }
   };
 

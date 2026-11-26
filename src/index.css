@@ -184,6 +184,8 @@ body {
   cursor: pointer;
   transition: all 0.18s ease;
   position: relative;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .nav-btn:hover {
@@ -341,7 +343,7 @@ body {
   display: flex;
   flex-direction: column;
   gap: 4px;
-  max-height: 240px;
+  max-height: 360px;
   overflow-y: auto;
 }
 
@@ -712,8 +714,8 @@ body {
   left: 50%;
   transform: translateX(-50%);
   z-index: 1000;
-  width: 90%;
-  max-width: 480px;
+  width: min(440px, calc(100vw - 28px));
+  box-sizing: border-box;
   pointer-events: auto;
   animation: blushSpring 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
@@ -3088,8 +3090,25 @@ input:checked + .slider:before {
 }
 
 @media (max-width: 768px) {
+  .desktop-nav {
+    display: none !important;
+  }
+
+  .mobile-bottom-nav {
+    display: flex !important;
+  }
+
   .shell {
-    padding: 0 14px 84px;
+    padding: 0 14px 94px;
+  }
+
+  .prologue-nav-pill span {
+    display: none;
+  }
+
+  .persona-dropdown {
+    width: min(320px, calc(100vw - 28px));
+    right: 0;
   }
 
   .chat-tab-layout {
@@ -3156,7 +3175,7 @@ input:checked + .slider:before {
 
   .blush-toast-container {
     bottom: 74px;
-    width: 94%;
+    width: min(440px, calc(100vw - 24px));
   }
 
   /* Bottom sheet behavior on mobile for modals */
@@ -3173,39 +3192,6 @@ input:checked + .slider:before {
     max-height: 88vh;
     overflow-y: auto;
     margin: 0;
-  }
-}
-
-/* Phones & small mobile viewports: switch to bottom navigation cleanly */
-@media (max-width: 680px) {
-  .desktop-nav {
-    display: none !important;
-  }
-
-  .mobile-bottom-nav {
-    display: flex !important;
-  }
-
-  .shell {
-    padding: 0 14px 94px;
-  }
-
-  .prologue-nav-pill span {
-    display: none;
-  }
-
-  .persona-dropdown {
-    width: min(320px, calc(100vw - 28px));
-    right: -8px;
-  }
-
-  .profile-cards-grid {
-    grid-template-columns: 1fr;
-    gap: 16px;
-  }
-
-  .card-actions {
-    flex-direction: column;
   }
 }
 
@@ -3429,6 +3415,9 @@ input:checked + .slider:before {
   align-items: center;
   justify-content: center;
   min-height: 480px;
+  max-height: calc(100vh - 160px);
+  overflow-y: auto;
+  scrollbar-width: none;
   cursor: default;
 }
 

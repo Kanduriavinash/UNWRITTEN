@@ -107,8 +107,8 @@ export const INITIAL_PROFILES: StudentProfile[] = [
 
 export const INITIAL_USER: CurrentUserProfile = {
   id: 'me',
-  displayName: 'Avinash',
-  email: 'avinash@campus.edu',
+  displayName: 'Rohan',
+  email: 'rohan@campus.edu',
   isVerified: true,
   collegeDomain: 'campus.edu',
   course: 'Computer Science & Engineering',
@@ -117,7 +117,7 @@ export const INITIAL_USER: CurrentUserProfile = {
   interests: ['Indie Music', 'Late-night talks', 'Coffee Walks', 'Late-night coding'],
   seeking: 'both',
   isInvisible: false,
-  instagramHandle: '@avinash.k'
+  instagramHandle: '@rohan.campus'
 };
 
 export const INITIAL_REQUESTS: ConnectionRequest[] = [

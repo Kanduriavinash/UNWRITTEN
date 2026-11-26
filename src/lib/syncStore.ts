@@ -111,7 +111,7 @@ export interface SharedStorageData {
   savedByUser: Record<string, string[]>;
 }
 
-const STORAGE_KEY = 'unwritten_shared_state_v1';
+const STORAGE_KEY = 'unwritten_shared_state_v2';
 const BROADCAST_CHANNEL_NAME = 'unwritten_campus_sync';
 
 // Default initial shared state
@@ -128,7 +128,7 @@ const DEFAULT_SHARED_DATA: SharedStorageData = {
       senderGradient: 'linear-gradient(135deg, #e8dff1, #f4e9ec)',
       senderChar: 'M',
       senderColor: '#9577aa',
-      receiverId: 'me', // Avinash
+      receiverId: 'me', // Rohan
       note: 'Hey! Saw you like indie music and late-night coding too. Would love to swap playlist recommendations!',
       status: 'pending',
       timestamp: '15 mins ago'
@@ -137,7 +137,7 @@ const DEFAULT_SHARED_DATA: SharedStorageData = {
   matches: [
     {
       id: 'match-init-1',
-      userAId: 'me', // Avinash
+      userAId: 'me', // Rohan
       userBId: 'p2', // Aarav
       matchedAt: 'Yesterday'
     }
@@ -269,7 +269,7 @@ class CampusSyncStore {
         interests: u.interests,
         seeking: u.seeking,
         avatarGradient: 'linear-gradient(135deg, #eee5f8, #f4eef8)',
-        avatarChar: 'A',
+        avatarChar: 'R',
         avatarColor: '#7652a0',
         instagramHandle: u.instagramHandle
       };

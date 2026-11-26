@@ -5675,3 +5675,1002 @@ input:checked + .slider:before {
 
 
 
+
+/* ==========================================================================
+   PWA INSTALLATION & CAMPUS NOTIFICATIONS SUITE
+   ========================================================================== */
+
+/* Header Install Pill */
+.install-nav-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: linear-gradient(135deg, rgba(236, 72, 153, 0.18), rgba(168, 85, 247, 0.22));
+  border: 1px solid rgba(236, 72, 153, 0.4);
+  color: #fdf4ff;
+  font-size: 11.5px;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 0 12px rgba(236, 72, 153, 0.15);
+  white-space: nowrap;
+}
+
+.install-nav-pill:hover {
+  background: linear-gradient(135deg, rgba(236, 72, 153, 0.3), rgba(168, 85, 247, 0.35));
+  border-color: rgba(236, 72, 153, 0.6);
+  transform: translateY(-1px);
+  box-shadow: 0 0 16px rgba(236, 72, 153, 0.3);
+}
+
+/* Header Notification Bell */
+.nav-icon-btn.nav-bell-btn {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  background: rgba(36, 20, 52, 0.6);
+  border: 1px solid rgba(192, 132, 252, 0.22);
+  border-radius: 10px;
+  color: #e9d5ff;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.nav-icon-btn.nav-bell-btn:hover {
+  background: rgba(48, 28, 70, 0.85);
+  border-color: rgba(192, 132, 252, 0.45);
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
+.bell-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  background: #ec4899;
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 700;
+  min-width: 17px;
+  height: 17px;
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+  box-shadow: 0 0 8px rgba(236, 72, 153, 0.8);
+  border: 1.5px solid #0b0512;
+}
+
+.dropdown-counter-badge {
+  margin-left: auto;
+  background: rgba(236, 72, 153, 0.25);
+  color: #f472b6;
+  border: 1px solid rgba(236, 72, 153, 0.4);
+  font-size: 10.5px;
+  font-weight: 700;
+  padding: 1px 7px;
+  border-radius: 9999px;
+}
+
+/* --------------------------------------------------------------------------
+   INSTALL MODAL STYLES
+   -------------------------------------------------------------------------- */
+.install-modal-card {
+  max-width: 520px;
+  width: 92vw;
+  background: linear-gradient(165deg, #1b0e2b 0%, #11071c 50%, #0b0512 100%);
+  border: 1px solid rgba(192, 132, 252, 0.3);
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.8), 0 0 40px rgba(168, 85, 247, 0.15);
+  border-radius: 24px;
+  padding: 0;
+  overflow: hidden;
+}
+
+.install-modal-title-group {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.install-icon-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.25), rgba(236, 72, 153, 0.2));
+  border: 1px solid rgba(192, 132, 252, 0.35);
+  color: #d8b4fe;
+}
+
+.install-pulse-icon {
+  animation: subtlePulse 2.5s infinite ease-in-out;
+}
+
+@keyframes subtlePulse {
+  0%, 100% { transform: scale(1); opacity: 0.9; }
+  50% { transform: scale(1.08); opacity: 1; }
+}
+
+.install-modal-body {
+  padding: 24px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.install-app-preview {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: rgba(28, 14, 44, 0.7);
+  border: 1px solid rgba(192, 132, 252, 0.2);
+  border-radius: 16px;
+  padding: 14px 18px;
+}
+
+.install-preview-icon {
+  width: 60px;
+  height: 60px;
+  border-radius: 14px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4), 0 0 12px rgba(168, 85, 247, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.install-preview-details h4 {
+  margin: 0 0 4px;
+  font-size: 15px;
+  color: #fdf4ff;
+  font-weight: 700;
+}
+
+.install-domain-tag {
+  display: inline-block;
+  font-size: 11px;
+  color: #a855f7;
+  font-family: var(--font-mono, monospace);
+  margin-bottom: 6px;
+}
+
+.install-meta-tags {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.install-tag-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10.5px;
+  color: #d8b4fe;
+  background: rgba(168, 85, 247, 0.12);
+  border: 1px solid rgba(168, 85, 247, 0.25);
+  padding: 2px 7px;
+  border-radius: 6px;
+}
+
+/* Perks Grid */
+.install-perks-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+
+.perk-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  background: rgba(24, 12, 38, 0.5);
+  border: 1px solid rgba(192, 132, 252, 0.14);
+  border-radius: 12px;
+  padding: 10px 14px;
+}
+
+.perk-icon {
+  color: #ec4899;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.perk-card div {
+  display: flex;
+  flex-direction: column;
+}
+
+.perk-card strong {
+  font-size: 12.5px;
+  color: #fdf4ff;
+}
+
+.perk-card span {
+  font-size: 11px;
+  color: #bdaecf;
+}
+
+.install-intro-text {
+  font-size: 13px;
+  color: #d1c5e0;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.install-action-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.install-cta-btn {
+  width: 100%;
+  padding: 13px 20px;
+  font-size: 14px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: linear-gradient(135deg, #ec4899, #a855f7);
+  box-shadow: 0 4px 20px rgba(236, 72, 153, 0.4);
+  border: none;
+  border-radius: 12px;
+}
+
+.install-cta-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 24px rgba(236, 72, 153, 0.55);
+}
+
+.manual-install-tip {
+  font-size: 12px;
+  color: #bdaecf;
+  background: rgba(36, 20, 52, 0.6);
+  border: 1px solid rgba(192, 132, 252, 0.2);
+  padding: 10px 14px;
+  border-radius: 10px;
+  line-height: 1.45;
+}
+
+/* iOS Guide Box */
+.ios-instructions-box {
+  background: rgba(26, 13, 40, 0.6);
+  border: 1px solid rgba(192, 132, 252, 0.22);
+  border-radius: 16px;
+  padding: 16px 18px;
+}
+
+.ios-guide-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #fdf4ff;
+  margin-bottom: 6px;
+}
+
+.ios-guide-note {
+  font-size: 12px;
+  color: #bdaecf;
+  margin: 0 0 14px;
+}
+
+.ios-steps-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.ios-step-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.step-number {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #a855f7, #ec4899);
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.step-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.step-title {
+  font-size: 12.5px;
+  color: #fdf4ff;
+  font-weight: 600;
+}
+
+.step-desc {
+  font-size: 11.5px;
+  color: #bdaecf;
+  line-height: 1.4;
+  margin-top: 2px;
+}
+
+.inline-icon {
+  display: inline-block;
+  vertical-align: middle;
+  color: #ec4899;
+}
+
+/* Success status */
+.install-status-box.installed-success {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: rgba(85, 224, 139, 0.12);
+  border: 1px solid rgba(85, 224, 139, 0.35);
+  border-radius: 14px;
+  padding: 16px 18px;
+}
+
+.success-icon-wrap {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(85, 224, 139, 0.2);
+  color: #55e08b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.success-text strong {
+  display: block;
+  font-size: 14px;
+  color: #55e08b;
+  margin-bottom: 4px;
+}
+
+.success-text p {
+  font-size: 12px;
+  color: #d1c5e0;
+  margin: 0;
+  line-height: 1.45;
+}
+
+.install-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 28px;
+  background: rgba(14, 6, 22, 0.8);
+  border-top: 1px solid rgba(192, 132, 252, 0.15);
+}
+
+.free-forever-badge {
+  font-size: 11.5px;
+  color: #a855f7;
+  font-weight: 600;
+}
+
+/* --------------------------------------------------------------------------
+   NOTIFICATION MODAL & CENTER STYLES
+   -------------------------------------------------------------------------- */
+.notification-modal-card {
+  max-width: 580px;
+  width: 94vw;
+  background: linear-gradient(165deg, #190d28 0%, #11071c 50%, #0b0512 100%);
+  border: 1px solid rgba(192, 132, 252, 0.3);
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.8), 0 0 40px rgba(168, 85, 247, 0.15);
+  border-radius: 24px;
+  padding: 0;
+  overflow: hidden;
+  max-height: 86vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.notif-modal-title-group {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.notif-bell-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(236, 72, 153, 0.25), rgba(168, 85, 247, 0.2));
+  border: 1px solid rgba(236, 72, 153, 0.4);
+  color: #f472b6;
+}
+
+.bell-ring-icon {
+  animation: bellSway 3s infinite ease-in-out;
+}
+
+@keyframes bellSway {
+  0%, 100% { transform: rotate(0); }
+  10%, 30% { transform: rotate(14deg); }
+  20%, 40% { transform: rotate(-14deg); }
+  50% { transform: rotate(0); }
+}
+
+.notif-title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.unread-pill {
+  background: rgba(236, 72, 153, 0.25);
+  border: 1px solid rgba(236, 72, 153, 0.5);
+  color: #f472b6;
+  font-size: 10.5px;
+  font-weight: 700;
+  padding: 1px 7px;
+  border-radius: 9999px;
+}
+
+/* Device Permission Banner */
+.notif-permission-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  background: rgba(30, 16, 48, 0.75);
+  border-bottom: 1px solid rgba(192, 132, 252, 0.18);
+  padding: 14px 24px;
+}
+
+@media (max-width: 600px) {
+  .notif-permission-banner {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+}
+
+.banner-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.banner-icon {
+  color: #c084fc;
+  flex-shrink: 0;
+}
+
+.banner-left strong {
+  display: block;
+  font-size: 12.5px;
+  color: #fdf4ff;
+  margin-bottom: 2px;
+}
+
+.banner-left p {
+  font-size: 11px;
+  color: #bdaecf;
+  margin: 0;
+}
+
+.banner-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.enable-perm-btn {
+  background: linear-gradient(135deg, #ec4899, #a855f7);
+  color: #ffffff;
+  border: none;
+  font-size: 11.5px;
+  font-weight: 700;
+  padding: 6px 13px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.enable-perm-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(236, 72, 153, 0.4);
+}
+
+.test-notif-btn {
+  background: rgba(168, 85, 247, 0.15);
+  border: 1px solid rgba(168, 85, 247, 0.35);
+  color: #d8b4fe;
+  font-size: 11.5px;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.test-notif-btn:hover:not(:disabled) {
+  background: rgba(168, 85, 247, 0.28);
+  color: #ffffff;
+}
+
+.test-notif-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Filter Bar */
+.notif-filter-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 24px;
+  background: rgba(18, 8, 30, 0.5);
+  border-bottom: 1px solid rgba(192, 132, 252, 0.1);
+}
+
+.filter-pill-group {
+  display: flex;
+  gap: 6px;
+}
+
+.filter-pill {
+  background: transparent;
+  border: 1px solid transparent;
+  color: #a797be;
+  font-size: 11.5px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.filter-pill:hover {
+  color: #fdf4ff;
+  background: rgba(168, 85, 247, 0.1);
+}
+
+.filter-pill.active {
+  background: rgba(168, 85, 247, 0.2);
+  border-color: rgba(168, 85, 247, 0.4);
+  color: #fdf4ff;
+}
+
+.notif-bulk-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.mark-all-btn,
+.clear-all-btn {
+  background: transparent;
+  border: none;
+  font-size: 11px;
+  color: #a797be;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 6px;
+  border-radius: 4px;
+  transition: color 0.15s ease;
+}
+
+.mark-all-btn:hover {
+  color: #55e08b;
+}
+
+.clear-all-btn:hover {
+  color: #ef4444;
+}
+
+/* Notifications List Body */
+.notif-list-body {
+  padding: 16px 24px;
+  overflow-y: auto;
+  flex: 1;
+  max-height: 50vh;
+}
+
+.notif-items-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.notif-item-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 12px 16px;
+  border-radius: 14px;
+  background: rgba(26, 13, 40, 0.55);
+  border: 1px solid rgba(192, 132, 252, 0.15);
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.notif-item-card:hover {
+  background: rgba(34, 18, 52, 0.75);
+  border-color: rgba(192, 132, 252, 0.3);
+  transform: translateY(-1px);
+}
+
+.notif-item-card.unread {
+  background: rgba(38, 18, 60, 0.7);
+  border-color: rgba(236, 72, 153, 0.35);
+  box-shadow: 0 0 16px rgba(236, 72, 153, 0.08);
+}
+
+.notif-icon-col {
+  margin-top: 2px;
+}
+
+.notif-type-icon {
+  width: 18px;
+  height: 18px;
+}
+
+.notif-type-icon.update { color: #ec4899; }
+.notif-type-icon.request { color: #f43f5e; }
+.notif-type-icon.chat { color: #a855f7; }
+.notif-type-icon.security { color: #55e08b; }
+.notif-type-icon.system { color: #38bdf8; }
+
+.notif-content-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.notif-item-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.notif-item-title {
+  font-size: 13px;
+  color: #fdf4ff;
+  font-weight: 700;
+}
+
+.notif-timestamp {
+  font-size: 10.5px;
+  color: #8c7b9e;
+  white-space: nowrap;
+}
+
+.notif-item-body {
+  font-size: 12px;
+  color: #bdaecf;
+  line-height: 1.45;
+  margin: 0 0 8px;
+}
+
+.notif-item-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 2px;
+}
+
+.notif-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(168, 85, 247, 0.15);
+  border: 1px solid rgba(168, 85, 247, 0.3);
+  color: #d8b4fe;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 9px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.notif-action-btn:hover {
+  background: rgba(168, 85, 247, 0.3);
+  color: #ffffff;
+}
+
+.unread-dot-badge {
+  color: #ec4899;
+  font-size: 12px;
+  margin-left: auto;
+}
+
+.empty-notif-state {
+  text-align: center;
+  padding: 36px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.empty-bell-icon {
+  color: #634b7a;
+  margin-bottom: 12px;
+}
+
+.empty-notif-state h4 {
+  font-size: 15px;
+  color: #fdf4ff;
+  margin: 0 0 6px;
+}
+
+.empty-notif-state p {
+  font-size: 12px;
+  color: #8c7b9e;
+  margin: 0 0 16px;
+}
+
+.campus-live-badge {
+  font-size: 11px;
+  color: #55e08b;
+  font-weight: 600;
+}
+
+/* --------------------------------------------------------------------------
+   PROFILE TAB APP HUB CARD
+   -------------------------------------------------------------------------- */
+.app-hub-card {
+  border-color: rgba(192, 132, 252, 0.28);
+  background: linear-gradient(145deg, rgba(32, 16, 50, 0.7), rgba(18, 9, 30, 0.85));
+}
+
+.app-hub-actions-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.app-hub-item {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: rgba(22, 11, 36, 0.6);
+  border: 1px solid rgba(192, 132, 252, 0.15);
+  border-radius: 12px;
+  padding: 12px 14px;
+}
+
+.hub-status-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.hub-label {
+  font-size: 12px;
+  color: #d1c5e0;
+  font-weight: 600;
+}
+
+.hub-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10.5px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 9999px;
+}
+
+.hub-tag.active {
+  background: rgba(85, 224, 139, 0.15);
+  border: 1px solid rgba(85, 224, 139, 0.35);
+  color: #55e08b;
+}
+
+.hub-tag.pending {
+  background: rgba(236, 72, 153, 0.15);
+  border: 1px solid rgba(236, 72, 153, 0.35);
+  color: #f472b6;
+}
+
+.hub-tag.muted {
+  background: rgba(148, 163, 184, 0.15);
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  color: #94a3b8;
+}
+
+.hub-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: rgba(168, 85, 247, 0.2);
+  border: 1px solid rgba(168, 85, 247, 0.4);
+  color: #fdf4ff;
+  font-size: 11.5px;
+  font-weight: 600;
+  padding: 7px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.hub-btn:hover {
+  background: rgba(168, 85, 247, 0.35);
+  transform: translateY(-1px);
+}
+
+.hub-btn.primary {
+  background: linear-gradient(135deg, #ec4899, #a855f7);
+  border: none;
+  font-weight: 700;
+}
+
+.hub-btn.primary:hover {
+  box-shadow: 0 4px 14px rgba(236, 72, 153, 0.4);
+}
+
+.hub-btn.secondary {
+  background: rgba(36, 20, 56, 0.6);
+  border-color: rgba(192, 132, 252, 0.25);
+  color: #d8b4fe;
+}
+
+.hub-btn-row {
+  display: flex;
+  gap: 8px;
+}
+
+/* Modal Header & Close Button Alignment */
+.install-modal-card .modal-header,
+.notification-modal-card .modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 24px;
+  background: rgba(22, 11, 35, 0.85);
+  border-bottom: 1px solid rgba(192, 132, 252, 0.18);
+  position: relative;
+}
+
+.install-modal-card .modal-close-btn,
+.notification-modal-card .modal-close-btn {
+  position: static;
+  width: 34px;
+  height: 34px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #fbf7ff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.install-modal-card .modal-close-btn:hover,
+.notification-modal-card .modal-close-btn:hover {
+  background: rgba(255, 255, 255, 0.18);
+  color: #ffffff;
+  transform: scale(1.05);
+}
+
+/* Mobile Viewport Header & Modals Perfection */
+@media (max-width: 768px) {
+  .prologue-nav-pill,
+  .helpdesk-nav-pill,
+  .insights-nav-pill {
+    display: none !important;
+  }
+
+  .nav-header {
+    padding: 0 10px;
+  }
+
+  .nav-container {
+    gap: 8px;
+    justify-content: space-between;
+  }
+
+  .brand-group {
+    gap: 8px;
+    flex-shrink: 0;
+  }
+
+  .install-nav-pill span {
+    display: none;
+  }
+
+  .install-nav-pill {
+    padding: 6px 9px;
+  }
+
+  .nav-right {
+    gap: 6px;
+    margin-left: auto;
+  }
+
+  .campus-badge {
+    display: none !important;
+  }
+
+  .persona-name {
+    display: none !important;
+  }
+
+  .persona-btn.account-profile-btn {
+    padding: 4px;
+    gap: 3px;
+  }
+
+  .install-modal-card,
+  .notification-modal-card {
+    width: 100% !important;
+    max-width: 100% !important;
+    border-radius: 24px 24px 0 0 !important;
+    max-height: 88vh !important;
+  }
+
+  .modal-overlay {
+    align-items: flex-end !important;
+    padding: 0 !important;
+  }
+}
+
+/* Mobile Modal Footers Polish */
+@media (max-width: 480px) {
+  .install-footer,
+  .notif-footer {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+    padding: 14px 20px;
+  }
+
+  .install-footer .free-forever-badge,
+  .notif-footer .campus-live-badge {
+    text-align: center;
+    font-size: 11px;
+  }
+
+  .install-footer button,
+  .notif-footer button {
+    width: 100%;
+  }
+
+  .notif-filter-bar {
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 10px 16px;
+  }
+
+  .filter-pill-group {
+    flex-wrap: wrap;
+  }
+}

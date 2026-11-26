@@ -1,23 +1,36 @@
-import React, { useState, useRef } from 'react';
-import { UserRound, LockKeyhole, EyeOff, Eye, Check, ShieldCheck, Upload, UserCheck } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
+import { UserRound, LockKeyhole, EyeOff, Eye, Check, ShieldCheck, Upload, UserCheck, Smartphone, Bell, Download } from 'lucide-react';
 import type { CurrentUserProfile } from '../types';
 import { INTEREST_TAGS } from '../data/mockData';
 import { VerifiedBadge } from './VerifiedBadge';
+import { notificationManager } from '../lib/notifications';
 
 interface ProfileTabProps {
   user: CurrentUserProfile;
   onUpdateUser: (updated: CurrentUserProfile) => void;
   onOpenAuth: () => void;
+  onOpenInstall?: () => void;
+  onOpenNotifications?: () => void;
+  isStandaloneApp?: boolean;
 }
 
 export const ProfileTab: React.FC<ProfileTabProps> = ({
   user,
   onUpdateUser,
-  onOpenAuth
+  onOpenAuth,
+  onOpenInstall,
+  onOpenNotifications,
+  isStandaloneApp = false
 }) => {
   const [formData, setFormData] = useState<CurrentUserProfile>({ ...user });
   const [isSavedAlert, setIsSavedAlert] = useState(false);
+  const [permission, setPermission] = useState<NotificationPermission>('default');
+  const [isTestingAlert, setIsTestingAlert] = useState(false);
   const profileFileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    setPermission(notificationManager.getPermission());
+  }, []);
 
   const availableTags = INTEREST_TAGS.filter((t) => t !== 'All');
 
@@ -272,8 +285,95 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
           </form>
         </div>
 
-        {/* Right: Privacy Controls & Campus Info */}
+        {/* Right: Privacy Controls, Mobile App & Campus Info */}
         <div className="profile-side-pane">
+          {/* Mobile App & Push Notifications Card */}
+          <div className="privacy-feature-card app-hub-card">
+            <div className="privacy-card-header">
+              <div className="privacy-icon-wrap">
+                <Smartphone size={22} color="#c084fc" />
+              </div>
+              <div>
+                <h3>UNWRITTEN Mobile App</h3>
+                <span className="feature-sub">Download to phone & manage live updates</span>
+              </div>
+            </div>
+
+            <p className="privacy-desc">
+              Experience UNWRITTEN in native standalone mode on your Android or iPhone with zero browser address bars, offline access, and instant update chimes.
+            </p>
+
+            <div className="app-hub-actions-grid">
+              <div className="app-hub-item">
+                <div className="hub-status-row">
+                  <span className="hub-label">Phone App:</span>
+                  {isStandaloneApp ? (
+                    <span className="hub-tag active"><Check size={11} /> Installed</span>
+                  ) : (
+                    <span className="hub-tag pending">Ready to Install</span>
+                  )}
+                </div>
+                {!isStandaloneApp && onOpenInstall && (
+                  <button
+                    type="button"
+                    className="hub-btn primary"
+                    onClick={onOpenInstall}
+                  >
+                    <Download size={14} /> Install on Mobile 📲
+                  </button>
+                )}
+              </div>
+
+              <div className="app-hub-item">
+                <div className="hub-status-row">
+                  <span className="hub-label">Push Alerts:</span>
+                  {permission === 'granted' ? (
+                    <span className="hub-tag active"><Check size={11} /> Active</span>
+                  ) : permission === 'denied' ? (
+                    <span className="hub-tag muted">Blocked in Settings</span>
+                  ) : (
+                    <span className="hub-tag pending">Not Enabled</span>
+                  )}
+                </div>
+                <div className="hub-btn-row">
+                  {permission !== 'granted' ? (
+                    <button
+                      type="button"
+                      className="hub-btn"
+                      onClick={async () => {
+                        const res = await notificationManager.requestPermission();
+                        setPermission(res);
+                      }}
+                    >
+                      <Bell size={13} /> Enable Alerts 🔔
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      className="hub-btn"
+                      onClick={() => onOpenNotifications && onOpenNotifications()}
+                    >
+                      <Bell size={13} /> View Notifications
+                    </button>
+                  )}
+                  <button
+                    type="button"
+                    className="hub-btn secondary"
+                    disabled={isTestingAlert}
+                    onClick={async () => {
+                      setIsTestingAlert(true);
+                      await notificationManager.sendTestNotification();
+                      setTimeout(() => setIsTestingAlert(false), 1200);
+                    }}
+                    title="Send a sample notification chime & system banner"
+                  >
+                    {isTestingAlert ? 'Chiming...' : 'Test Alert 🧪'}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
           {/* Invisible Mode Card */}
           <div className="privacy-feature-card">
             <div className="privacy-card-header">

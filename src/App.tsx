@@ -12,6 +12,9 @@ import { HelpDeskModal } from './components/HelpDeskModal';
 import { InsightsTab } from './components/InsightsTab';
 import { StoryPrologue } from './components/StoryPrologue';
 import { CelestialCanvas } from './components/CelestialCanvas';
+import { InstallModal } from './components/InstallModal';
+import { NotificationModal } from './components/NotificationModal';
+import { notificationManager } from './lib/notifications';
 
 import type {
   StudentProfile,
@@ -42,7 +45,37 @@ export default function App() {
   const [collegeDomain, setCollegeDomain] = useState<string>('am.students.amrita.edu');
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [helpDeskOpen, setHelpDeskOpen] = useState(false);
+  const [installModalOpen, setInstallModalOpen] = useState(false);
+  const [notificationModalOpen, setNotificationModalOpen] = useState(false);
+  const [unreadNotifCount, setUnreadNotifCount] = useState<number>(() => notificationManager.getUnreadCount());
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+  const [isStandaloneApp, setIsStandaloneApp] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  // Monitor PWA installation and notification bus
+  useEffect(() => {
+    const handleBeforeInstall = (e: Event) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+    };
+    window.addEventListener('beforeinstallprompt', handleBeforeInstall);
+
+    if (typeof window !== 'undefined') {
+      const isStandalone =
+        window.matchMedia('(display-mode: standalone)').matches ||
+        (window.navigator as any).standalone === true;
+      setIsStandaloneApp(Boolean(isStandalone));
+    }
+
+    const unsubNotif = notificationManager.subscribe(() => {
+      setUnreadNotifCount(notificationManager.getUnreadCount());
+    });
+
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstall);
+      unsubNotif();
+    };
+  }, []);
 
   const showToast = (msg: string) => {
     setToastMessage(msg);
@@ -247,12 +280,16 @@ export default function App() {
         setActiveTab={setActiveTab}
         incomingCount={incomingRequests.length}
         unreadCount={totalUnread}
+        unreadNotificationsCount={unreadNotifCount}
         campusDomain={collegeDomain}
         currentUser={currentUser}
         onSwitchUser={handleSwitchUser}
         onResetDemo={handleResetDemo}
         onOpenPrologue={() => setShowPrologue(true)}
         onOpenHelpDesk={() => setHelpDeskOpen(true)}
+        onOpenNotifications={() => setNotificationModalOpen(true)}
+        onOpenInstall={() => setInstallModalOpen(true)}
+        isStandaloneApp={isStandaloneApp}
         isAudioActive={isAudioActive}
         onToggleAudio={handleToggleAudio}
       />
@@ -316,6 +353,9 @@ export default function App() {
         {activeTab === 'profile' && (
           <ProfileTab
             user={currentUser}
+            onOpenInstall={() => setInstallModalOpen(true)}
+            onOpenNotifications={() => setNotificationModalOpen(true)}
+            isStandaloneApp={isStandaloneApp}
             onUpdateUser={(updated) => {
               setCurrentUser(updated);
               syncStore.saveActivePersona(updated);
@@ -362,6 +402,26 @@ export default function App() {
         </div>
       )}
 
+      {/* Install UNWRITTEN App Modal */}
+      <InstallModal
+        isOpen={installModalOpen}
+        onClose={() => setInstallModalOpen(false)}
+        deferredPrompt={deferredPrompt}
+        isStandalone={isStandaloneApp}
+        onInstalled={() => {
+          setIsStandaloneApp(true);
+          showToast('UNWRITTEN successfully installed on your device! 📲');
+        }}
+      />
+
+      {/* Campus Updates & Notifications Feed Modal */}
+      <NotificationModal
+        isOpen={notificationModalOpen}
+        onClose={() => setNotificationModalOpen(false)}
+        onNavigateTab={(tab) => setActiveTab(tab)}
+        onOpenInstallModal={() => setInstallModalOpen(true)}
+      />
+
       {/* Help Desk & Community Guide Modal */}
       <HelpDeskModal
         isOpen={helpDeskOpen}
@@ -389,6 +449,18 @@ export default function App() {
               ✦ The Story Prologue
             </button>
             <span className="dot-sep">·</span>
+            <button className="auth-footer-link" onClick={() => setNotificationModalOpen(true)}>
+              🔔 Updates & Alerts ({unreadNotifCount})
+            </button>
+            <span className="dot-sep">·</span>
+            {!isStandaloneApp && (
+              <>
+                <button className="auth-footer-link" onClick={() => setInstallModalOpen(true)}>
+                  📲 Download App
+                </button>
+                <span className="dot-sep">·</span>
+              </>
+            )}
             <button className="auth-footer-link" onClick={() => setHelpDeskOpen(true)}>
               💬 Campus Help Desk & Suggestions
             </button>

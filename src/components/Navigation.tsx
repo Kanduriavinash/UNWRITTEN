@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { BookHeart, Compass, Heart, MessageCircle, Bookmark, UserRound, Shield, RefreshCw, Sparkles, Volume2, VolumeX, HelpCircle, BarChart3 } from 'lucide-react';
+import { BookHeart, Compass, Heart, MessageCircle, Bookmark, UserRound, Shield, RefreshCw, Sparkles, Volume2, VolumeX, HelpCircle, BarChart3, Bell, Download, Smartphone } from 'lucide-react';
 import type { CurrentUserProfile, NavTab } from '../types';
 import { VerifiedBadge } from './VerifiedBadge';
 
@@ -8,12 +8,16 @@ interface NavigationProps {
   setActiveTab: (tab: NavTab) => void;
   incomingCount: number;
   unreadCount: number;
+  unreadNotificationsCount: number;
   campusDomain: string;
   currentUser: CurrentUserProfile;
   onSwitchUser?: (userId: string) => void;
   onResetDemo: () => void;
   onOpenPrologue: () => void;
   onOpenHelpDesk: () => void;
+  onOpenNotifications: () => void;
+  onOpenInstall: () => void;
+  isStandaloneApp: boolean;
   isAudioActive: boolean;
   onToggleAudio: () => void;
 }
@@ -23,11 +27,15 @@ export const Navigation: React.FC<NavigationProps> = ({
   setActiveTab,
   incomingCount,
   unreadCount,
+  unreadNotificationsCount,
   campusDomain,
   currentUser,
   onResetDemo,
   onOpenPrologue,
   onOpenHelpDesk,
+  onOpenNotifications,
+  onOpenInstall,
+  isStandaloneApp,
   isAudioActive,
   onToggleAudio
 }) => {
@@ -90,6 +98,18 @@ export const Navigation: React.FC<NavigationProps> = ({
             <BarChart3 size={13} />
             <span>Insights</span>
           </button>
+
+          {/* Install App Pill */}
+          {!isStandaloneApp && (
+            <button
+              className="install-nav-pill"
+              onClick={onOpenInstall}
+              title="Install UNWRITTEN App on your mobile or desktop"
+            >
+              <Download size={13} />
+              <span>Install App</span>
+            </button>
+          )}
         </div>
 
         {/* Desktop Tabs */}
@@ -145,8 +165,21 @@ export const Navigation: React.FC<NavigationProps> = ({
           </button>
         </nav>
 
-        {/* Right Section: Soundscape Toggle, Account Persona Switcher, Campus Badge */}
+        {/* Right Section: Soundscape Toggle, Notification Bell, Account Persona Switcher, Campus Badge */}
         <div className="nav-right">
+          {/* Notification Bell Button */}
+          <button
+            className="nav-icon-btn nav-bell-btn"
+            onClick={onOpenNotifications}
+            title="Campus Updates & Notifications"
+            aria-label="Campus Updates & Notifications"
+          >
+            <Bell size={16} />
+            {unreadNotificationsCount > 0 && (
+              <span className="nav-badge pulse bell-badge">{unreadNotificationsCount}</span>
+            )}
+          </button>
+
           {/* Soundscape button */}
           <button
             className={`nav-sound-btn ${isAudioActive ? 'active' : ''}`}
@@ -233,6 +266,33 @@ export const Navigation: React.FC<NavigationProps> = ({
                     <BarChart3 size={14} />
                     <span>Live Campus Insights (9 Sets)</span>
                   </button>
+
+                  <button
+                    className="account-action-item"
+                    onClick={() => {
+                      setSwitcherOpen(false);
+                      onOpenNotifications();
+                    }}
+                  >
+                    <Bell size={14} />
+                    <span>Campus Updates & Alerts</span>
+                    {unreadNotificationsCount > 0 && (
+                      <span className="dropdown-counter-badge">{unreadNotificationsCount}</span>
+                    )}
+                  </button>
+
+                  {!isStandaloneApp && (
+                    <button
+                      className="account-action-item"
+                      onClick={() => {
+                        setSwitcherOpen(false);
+                        onOpenInstall();
+                      }}
+                    >
+                      <Smartphone size={14} />
+                      <span>Install UNWRITTEN App 📲</span>
+                    </button>
+                  )}
 
                   <button
                     className="account-action-item"

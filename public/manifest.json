@@ -1,18 +1,63 @@
 {
   "short_name": "UNWRITTEN",
-  "name": "UNWRITTEN — Campus Connection Platform",
-  "icons": [
-    {
-      "src": "/favicon.ico",
-      "sizes": "64x64 32x32 24x24 16x16",
-      "type": "image/x-icon"
-    }
-  ],
+  "name": "UNWRITTEN — Campus Sanctuary",
+  "description": "Your story. Still unwritten. An intentional, quiet college connection platform for genuine friendships and unspoken campus connections.",
   "start_url": "/",
-  "background_color": "#0b0512",
-  "theme_color": "#0b0512",
+  "scope": "/",
   "display": "standalone",
   "orientation": "portrait",
-  "scope": "/",
-  "description": "Your story. Still unwritten. An intentional, quiet college connection platform for genuine friendships and unspoken campus connections."
+  "background_color": "#0b0512",
+  "theme_color": "#0b0512",
+  "categories": ["social", "education", "lifestyle"],
+  "icons": [
+    {
+      "src": "/icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Discover",
+      "short_name": "Discover",
+      "description": "Discover kindred college spirits",
+      "url": "/?tab=discover",
+      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Campus Chats",
+      "short_name": "Chats",
+      "description": "View active mutual chats",
+      "url": "/?tab=chats",
+      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Live Insights",
+      "short_name": "Insights",
+      "description": "Live campus analytics and verified stats",
+      "url": "/?tab=insights",
+      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
+    }
+  ],
+  "related_applications": [],
+  "prefer_related_applications": false
 }

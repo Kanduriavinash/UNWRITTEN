@@ -9,6 +9,7 @@ import { ProfileTab } from './components/ProfileTab';
 import { AuthModal } from './components/AuthModal';
 import { CampusAuthView } from './components/CampusAuthView';
 import { HelpDeskModal } from './components/HelpDeskModal';
+import { InsightsTab } from './components/InsightsTab';
 import { StoryPrologue } from './components/StoryPrologue';
 import { CelestialCanvas } from './components/CelestialCanvas';
 
@@ -16,7 +17,8 @@ import type {
   StudentProfile,
   ConnectionRequest,
   ActiveMatch,
-  CurrentUserProfile
+  CurrentUserProfile,
+  NavTab
 } from './types';
 
 import { syncStore } from './lib/syncStore';
@@ -29,7 +31,7 @@ export default function App() {
   });
   const [isAudioActive, setIsAudioActive] = useState<boolean>(false);
 
-  const [activeTab, setActiveTab] = useState<'discover' | 'requests' | 'chats' | 'saved' | 'profile'>('discover');
+  const [activeTab, setActiveTab] = useState<NavTab>('discover');
   const [currentUser, setCurrentUser] = useState<CurrentUserProfile>(syncStore.getActivePersona());
   const [profiles, setProfiles] = useState<StudentProfile[]>([]);
   const [savedIds, setSavedIds] = useState<string[]>([]);
@@ -304,6 +306,13 @@ export default function App() {
           />
         )}
 
+        {activeTab === 'insights' && (
+          <InsightsTab
+            collegeDomain={collegeDomain}
+            onNavigateToDiscover={() => setActiveTab('discover')}
+          />
+        )}
+
         {activeTab === 'profile' && (
           <ProfileTab
             user={currentUser}
@@ -382,6 +391,10 @@ export default function App() {
             <span className="dot-sep">·</span>
             <button className="auth-footer-link" onClick={() => setHelpDeskOpen(true)}>
               💬 Campus Help Desk & Suggestions
+            </button>
+            <span className="dot-sep">·</span>
+            <button className="auth-footer-link" onClick={() => setActiveTab('insights')}>
+              📊 Campus Live Insights
             </button>
             <span className="dot-sep">·</span>
             <button className="auth-footer-link" onClick={() => setAuthModalOpen(true)}>

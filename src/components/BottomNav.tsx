@@ -1,9 +1,10 @@
 import React from 'react';
-import { Compass, Heart, MessageCircle, Bookmark, UserRound } from 'lucide-react';
+import { Compass, Heart, MessageCircle, Bookmark, UserRound, BarChart3 } from 'lucide-react';
+import type { NavTab } from '../types';
 
 interface BottomNavProps {
-  activeTab: 'discover' | 'requests' | 'chats' | 'saved' | 'profile';
-  setActiveTab: (tab: 'discover' | 'requests' | 'chats' | 'saved' | 'profile') => void;
+  activeTab: NavTab;
+  setActiveTab: (tab: NavTab) => void;
   incomingCount: number;
   unreadCount: number;
 }
@@ -20,7 +21,7 @@ export const BottomNav: React.FC<BottomNavProps> = ({
         className={`bottom-tab ${activeTab === 'discover' ? 'active' : ''}`}
         onClick={() => setActiveTab('discover')}
       >
-        <Compass size={20} />
+        <Compass size={19} />
         <span>Discover</span>
       </button>
 
@@ -29,7 +30,7 @@ export const BottomNav: React.FC<BottomNavProps> = ({
         onClick={() => setActiveTab('requests')}
       >
         <div className="tab-icon-wrap">
-          <Heart size={20} />
+          <Heart size={19} />
           {incomingCount > 0 && <span className="tab-dot">{incomingCount}</span>}
         </div>
         <span>Requests</span>
@@ -40,7 +41,7 @@ export const BottomNav: React.FC<BottomNavProps> = ({
         onClick={() => setActiveTab('chats')}
       >
         <div className="tab-icon-wrap">
-          <MessageCircle size={20} />
+          <MessageCircle size={19} />
           {unreadCount > 0 && <span className="tab-dot">{unreadCount}</span>}
         </div>
         <span>Chats</span>
@@ -50,15 +51,23 @@ export const BottomNav: React.FC<BottomNavProps> = ({
         className={`bottom-tab ${activeTab === 'saved' ? 'active' : ''}`}
         onClick={() => setActiveTab('saved')}
       >
-        <Bookmark size={20} />
+        <Bookmark size={19} />
         <span>Saved</span>
+      </button>
+
+      <button
+        className={`bottom-tab ${activeTab === 'insights' ? 'active' : ''}`}
+        onClick={() => setActiveTab('insights')}
+      >
+        <BarChart3 size={19} />
+        <span>Insights</span>
       </button>
 
       <button
         className={`bottom-tab ${activeTab === 'profile' ? 'active' : ''}`}
         onClick={() => setActiveTab('profile')}
       >
-        <UserRound size={20} />
+        <UserRound size={19} />
         <span>Profile</span>
       </button>
     </nav>

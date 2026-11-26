@@ -1,11 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { BookHeart, Compass, Heart, MessageCircle, Bookmark, UserRound, Shield, RefreshCw, Sparkles, Volume2, VolumeX, HelpCircle } from 'lucide-react';
-import type { CurrentUserProfile } from '../types';
+import { BookHeart, Compass, Heart, MessageCircle, Bookmark, UserRound, Shield, RefreshCw, Sparkles, Volume2, VolumeX, HelpCircle, BarChart3 } from 'lucide-react';
+import type { CurrentUserProfile, NavTab } from '../types';
 import { VerifiedBadge } from './VerifiedBadge';
 
 interface NavigationProps {
-  activeTab: 'discover' | 'requests' | 'chats' | 'saved' | 'profile';
-  setActiveTab: (tab: 'discover' | 'requests' | 'chats' | 'saved' | 'profile') => void;
+  activeTab: NavTab;
+  setActiveTab: (tab: NavTab) => void;
   incomingCount: number;
   unreadCount: number;
   campusDomain: string;
@@ -80,6 +80,16 @@ export const Navigation: React.FC<NavigationProps> = ({
             <HelpCircle size={13} />
             <span>Help Desk</span>
           </button>
+
+          {/* Campus Insights Pill */}
+          <button
+            className={`insights-nav-pill ${activeTab === 'insights' ? 'active' : ''}`}
+            onClick={() => setActiveTab('insights')}
+            title="Live Campus & Platform Insights"
+          >
+            <BarChart3 size={13} />
+            <span>Insights</span>
+          </button>
         </div>
 
         {/* Desktop Tabs */}
@@ -116,6 +126,14 @@ export const Navigation: React.FC<NavigationProps> = ({
           >
             <Bookmark size={17} />
             <span>Saved</span>
+          </button>
+
+          <button
+            className={`nav-btn ${activeTab === 'insights' ? 'active' : ''}`}
+            onClick={() => setActiveTab('insights')}
+          >
+            <BarChart3 size={17} />
+            <span>App Insights</span>
           </button>
 
           <button
@@ -203,6 +221,17 @@ export const Navigation: React.FC<NavigationProps> = ({
                   >
                     <UserRound size={14} />
                     <span>View / Edit My Story</span>
+                  </button>
+
+                  <button
+                    className="account-action-item"
+                    onClick={() => {
+                      setActiveTab('insights');
+                      setSwitcherOpen(false);
+                    }}
+                  >
+                    <BarChart3 size={14} />
+                    <span>Live Campus Insights (9 Sets)</span>
                   </button>
 
                   <button

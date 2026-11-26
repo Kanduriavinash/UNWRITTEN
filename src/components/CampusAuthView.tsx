@@ -26,7 +26,8 @@ export const CampusAuthView: React.FC<CampusAuthViewProps> = ({
   const [showPassword, setShowPassword] = useState(false);
   const [gender, setGender] = useState<'male' | 'female'>('male');
   const [rollNumber, setRollNumber] = useState('');
-  const [course, setCourse] = useState('Computer Science & Engineering');
+  const [course, setCourse] = useState('CSE');
+  const [otherCourse, setOtherCourse] = useState('');
   const [studyYear, setStudyYear] = useState('1st Year');
   const [seeking, setSeeking] = useState<'friendship' | 'dating' | 'both'>('both');
   const [bio, setBio] = useState('');
@@ -104,6 +105,8 @@ export const CampusAuthView: React.FC<CampusAuthViewProps> = ({
 
     setBusy(true);
 
+    const finalCourse = course === 'Other' ? (otherCourse.trim() || 'Other') : course;
+
     const userProfile: CurrentUserProfile = {
       id: 'me',
       displayName: fullName.trim() || 'Campus Student',
@@ -111,7 +114,7 @@ export const CampusAuthView: React.FC<CampusAuthViewProps> = ({
       isVerified: true,
       collegeDomain,
       gender,
-      course,
+      course: finalCourse,
       studyYear,
       bio: bio.trim() || 'Excited to meet like-minded peers across campus.',
       interests: selectedInterests.length > 0 ? selectedInterests : ['Indie Music', 'Coffee Walks'],
@@ -275,19 +278,20 @@ export const CampusAuthView: React.FC<CampusAuthViewProps> = ({
               {/* Course & Study Year */}
               <div className="form-row-duo">
                 <div className="input-group">
-                  <label>Department / Course</label>
+                  <label>Department / Branch</label>
                   <select
                     value={course}
                     onChange={(e) => setCourse(e.target.value)}
                     className="auth-select"
                   >
-                    <option value="Computer Science & Engineering">Computer Science & Engineering</option>
-                    <option value="Artificial Intelligence & Data Science">AI & Data Science</option>
-                    <option value="Electronics & Communication">Electronics & Communication</option>
-                    <option value="Mechanical Engineering">Mechanical Engineering</option>
-                    <option value="Biotechnology & Genetics">Biotechnology & Genetics</option>
-                    <option value="Visual Media & Communication">Visual Media & Communication</option>
-                    <option value="Civil & Environmental Engineering">Civil Engineering</option>
+                    <option value="CSE">CSE</option>
+                    <option value="AIDS">AIDS</option>
+                    <option value="AI">AI</option>
+                    <option value="RAI">RAI</option>
+                    <option value="ELC">ELC</option>
+                    <option value="EAC">EAC</option>
+                    <option value="EEE">EEE</option>
+                    <option value="Other">Other</option>
                   </select>
                 </div>
 
@@ -306,6 +310,21 @@ export const CampusAuthView: React.FC<CampusAuthViewProps> = ({
                   </select>
                 </div>
               </div>
+
+              {/* Mention other department if 'Other' selected */}
+              {course === 'Other' && (
+                <div className="input-group other-dept-group">
+                  <label>Mention Your Department / Course</label>
+                  <input
+                    type="text"
+                    placeholder="Mention your department (e.g. Mechanical, Biotech, MBA, Aerospace...)"
+                    value={otherCourse}
+                    onChange={(e) => setOtherCourse(e.target.value)}
+                    required
+                    className="auth-input"
+                  />
+                </div>
+              )}
 
               {/* Seeking Intent */}
               <div className="input-group">

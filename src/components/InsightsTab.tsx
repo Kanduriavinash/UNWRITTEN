@@ -114,11 +114,14 @@ export const InsightsTab: React.FC<InsightsTabProps> = ({
 
   // Departments breakdown
   const departments = [
-    { name: 'Computer Science & AI', percent: 42, count: Math.round(totalStudents * 0.42) },
-    { name: 'Visual Media & Communication', percent: 22, count: Math.round(totalStudents * 0.22) },
-    { name: 'Biotechnology & Genetics', percent: 18, count: Math.round(totalStudents * 0.18) },
-    { name: 'Mechanical & Automotive', percent: 12, count: Math.round(totalStudents * 0.12) },
-    { name: 'Civil & Environmental', percent: 6, count: Math.round(totalStudents * 0.06) }
+    { name: 'CSE', percent: 32, count: Math.round(totalStudents * 0.32) },
+    { name: 'AIDS', percent: 20, count: Math.round(totalStudents * 0.20) },
+    { name: 'EAC', percent: 15, count: Math.round(totalStudents * 0.15) },
+    { name: 'AI', percent: 11, count: Math.round(totalStudents * 0.11) },
+    { name: 'RAI', percent: 9, count: Math.round(totalStudents * 0.09) },
+    { name: 'ELC', percent: 6, count: Math.round(totalStudents * 0.06) },
+    { name: 'EEE', percent: 4, count: Math.round(totalStudents * 0.04) },
+    { name: 'Other', percent: 3, count: Math.round(totalStudents * 0.03) }
   ];
 
   return (

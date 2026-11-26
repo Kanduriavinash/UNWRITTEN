@@ -151,14 +151,46 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
             </div>
 
             <div className="input-group">
-              <label>Department / Major</label>
-              <input
-                type="text"
-                value={formData.course}
-                onChange={(e) => setFormData({ ...formData, course: e.target.value })}
-                placeholder="e.g. Computer Science, Architecture, Literature..."
-                required
-              />
+              <label>Department / Branch</label>
+              <div className="custom-pill-selector dept-pill-selector" role="radiogroup" aria-label="Department Branch">
+                {['CSE', 'AIDS', 'AI', 'RAI', 'ELC', 'EAC', 'EEE', 'Other'].map((d) => {
+                  const isOtherSelected =
+                    d === 'Other' &&
+                    !['CSE', 'AIDS', 'AI', 'RAI', 'ELC', 'EAC', 'EEE'].includes(formData.course);
+                  const isDeptSelected = formData.course === d || isOtherSelected;
+                  return (
+                    <button
+                      type="button"
+                      key={d}
+                      className={`custom-pill-opt ${isDeptSelected ? 'active' : ''}`}
+                      onClick={() => {
+                        if (d !== 'Other') {
+                          setFormData({ ...formData, course: d });
+                        } else {
+                          if (['CSE', 'AIDS', 'AI', 'RAI', 'ELC', 'EAC', 'EEE'].includes(formData.course)) {
+                            setFormData({ ...formData, course: '' });
+                          }
+                        }
+                      }}
+                    >
+                      {isDeptSelected && <span className="pill-dot">✦</span>}
+                      {d}
+                    </button>
+                  );
+                })}
+              </div>
+              {!['CSE', 'AIDS', 'AI', 'RAI', 'ELC', 'EAC', 'EEE'].includes(formData.course) && (
+                <div className="other-dept-mention-box mt-2">
+                  <input
+                    type="text"
+                    value={formData.course}
+                    onChange={(e) => setFormData({ ...formData, course: e.target.value })}
+                    placeholder="Mention your department (e.g. Mechanical, Biotech, MBA...)"
+                    required
+                  />
+                  <span className="input-hint">Mention your specific campus department or specialization.</span>
+                </div>
+              )}
             </div>
 
             <div className="input-group">

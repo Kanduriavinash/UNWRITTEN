@@ -236,7 +236,7 @@ export const Navigation: React.FC<NavigationProps> = ({
                       {currentUser.isIdVerified && <VerifiedBadge size={13} />}
                     </strong>
                     <span className="account-subtext">
-                      {currentUser.studyYear} · {currentUser.course.split('&')[0]}
+                      {currentUser.studyYear} · {currentUser.course}
                     </span>
                     <span className="account-campus-tag">
                       <Shield size={11} /> @{campusDomain} Verified

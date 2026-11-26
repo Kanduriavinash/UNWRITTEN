@@ -6698,6 +6698,15 @@ input:checked + .slider:before {
   }
 }
 
+.notif-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 24px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
 /* Mobile Modal Footers Polish */
 @media (max-width: 480px) {
   .install-footer,

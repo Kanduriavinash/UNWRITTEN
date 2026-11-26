@@ -1,5 +1,8 @@
 import type { StudentProfile, ConnectionRequest, ActiveMatch, CurrentUserProfile, HelpDeskQuery, HelpDeskCategory } from '../types';
 import { INITIAL_USER } from '../data/mockData';
+import { supabase, isSupabaseConfigured } from './supabase';
+import { notificationManager } from './notifications';
+import { soundscape } from './soundscapes';
 
 // Active campus personas (starts clean with current user)
 export const ALL_PERSONAS: CurrentUserProfile[] = [
@@ -31,6 +34,7 @@ export interface SharedStorageData {
 
 const STORAGE_KEY = 'unwritten_shared_state_v5_live';
 const BROADCAST_CHANNEL_NAME = 'unwritten_campus_sync';
+const CURRENT_USER_KEY = 'unwritten_current_student_profile';
 
 // Default initial shared state for production - live real data only
 const DEFAULT_SHARED_DATA: SharedStorageData = {
@@ -52,11 +56,129 @@ const DEFAULT_SHARED_DATA: SharedStorageData = {
   ]
 };
 
-const CURRENT_USER_KEY = 'unwritten_current_student_profile';
+// Row mappers between PostgREST snake_case schema and React camelCase models
+function rowToProfile(row: any): StudentProfile {
+  return {
+    id: row.id,
+    name: row.name || 'Campus Student',
+    age: row.age || 20,
+    gender: (row.gender as 'male' | 'female' | 'other') || 'male',
+    course: row.course || 'CSE',
+    studyYear: row.study_year || '1st Year',
+    bio: row.bio || '',
+    note: row.note || 'Writing my campus story on UNWRITTEN.',
+    interests: Array.isArray(row.interests) ? row.interests : [],
+    seeking: (row.seeking as 'friendship' | 'dating' | 'both') || 'both',
+    avatarGradient: row.avatar_gradient || 'linear-gradient(135deg, #eee5f8, #f4eef8)',
+    avatarChar: row.avatar_char || (row.name ? row.name[0].toUpperCase() : 'C'),
+    avatarColor: row.avatar_color || '#7652a0',
+    instagramHandle: row.instagram_handle || undefined,
+    rollNumber: row.roll_number || undefined,
+    isIdVerified: row.is_id_verified ?? true,
+    idCardImage: row.id_card_image || undefined
+  };
+}
+
+function profileToRow(profile: StudentProfile) {
+  return {
+    id: profile.id,
+    name: profile.name,
+    age: profile.age || 20,
+    gender: profile.gender || 'male',
+    course: profile.course || 'CSE',
+    study_year: profile.studyYear || '1st Year',
+    bio: profile.bio || '',
+    note: profile.note || '',
+    interests: profile.interests || [],
+    seeking: profile.seeking || 'both',
+    avatar_gradient: profile.avatarGradient || '',
+    avatar_char: profile.avatarChar || (profile.name ? profile.name[0].toUpperCase() : 'C'),
+    avatar_color: profile.avatarColor || '#7652a0',
+    instagram_handle: profile.instagramHandle || '',
+    roll_number: profile.rollNumber || '',
+    is_id_verified: profile.isIdVerified ?? true,
+    id_card_image: profile.idCardImage || '',
+    updated_at: new Date().toISOString()
+  };
+}
+
+function rowToRequest(row: any): ConnectionRequest {
+  return {
+    id: row.id,
+    senderId: row.sender_id,
+    senderName: row.sender_name || 'Campus Student',
+    senderCourse: row.sender_course,
+    senderYear: row.sender_year,
+    senderBio: row.sender_bio,
+    senderInterests: Array.isArray(row.sender_interests) ? row.sender_interests : [],
+    senderGradient: row.sender_gradient || 'linear-gradient(135deg, #e8dff1, #f4e9ec)',
+    senderChar: row.sender_char || (row.sender_name ? row.sender_name[0].toUpperCase() : 'U'),
+    senderColor: row.sender_color || '#7652a0',
+    receiverId: row.receiver_id,
+    note: row.note || undefined,
+    status: (row.status as 'pending' | 'accepted' | 'declined') || 'pending',
+    timestamp: row.created_at ? new Date(row.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Just now'
+  };
+}
+
+function requestToRow(req: ConnectionRequest) {
+  return {
+    id: req.id,
+    sender_id: req.senderId,
+    sender_name: req.senderName,
+    sender_course: req.senderCourse || '',
+    sender_year: req.senderYear || '',
+    sender_bio: req.senderBio || '',
+    sender_interests: req.senderInterests || [],
+    sender_gradient: req.senderGradient || '',
+    sender_char: req.senderChar || 'U',
+    sender_color: req.senderColor || '#7652a0',
+    receiver_id: req.receiverId,
+    note: req.note || '',
+    status: req.status || 'pending',
+    created_at: new Date().toISOString()
+  };
+}
+
+function rowToMatch(row: any) {
+  return {
+    id: row.id,
+    userAId: row.user_a_id,
+    userBId: row.user_b_id,
+    matchedAt: row.matched_at ? new Date(row.matched_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Just now'
+  };
+}
+
+function rowToMessage(row: any) {
+  return {
+    id: row.id,
+    matchId: row.match_id,
+    senderId: row.sender_id,
+    receiverId: row.receiver_id,
+    text: row.text,
+    type: (row.type as 'text' | 'instagram_share' | 'system') || 'text',
+    sharedHandle: row.shared_handle || undefined,
+    timestamp: row.created_at ? new Date(row.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Just now'
+  };
+}
+
+function rowToHelpDesk(row: any): HelpDeskQuery {
+  return {
+    id: row.id,
+    category: (row.category as HelpDeskCategory) || 'general',
+    name: row.name || 'Campus Student',
+    isAnonymous: Boolean(row.is_anonymous),
+    email: row.email || undefined,
+    message: row.message,
+    status: (row.status as 'Received' | 'Under Review' | 'Resolved') || 'Received',
+    timestamp: row.created_at ? new Date(row.created_at).toLocaleDateString() : 'Just now'
+  };
+}
 
 class CampusSyncStore {
   private channel: BroadcastChannel | null = null;
   private listeners: (() => void)[] = [];
+  private isCloudSyncing = false;
 
   constructor() {
     // Automatic cleanup of legacy mock data & privacy scrubbing
@@ -103,6 +225,12 @@ class CampusSyncStore {
         }
       });
     }
+
+    // Hydrate from Supabase and establish Realtime subscriptions
+    if (isSupabaseConfigured && supabase) {
+      this.fetchFromSupabase();
+      this.setupSupabaseRealtime();
+    }
   }
 
   // Active student profile for current user
@@ -115,6 +243,12 @@ class CampusSyncStore {
           if (parsed && typeof parsed === 'object') {
             if (parsed.displayName && /avinash/i.test(parsed.displayName)) {
               parsed.displayName = 'Campus Member';
+            }
+            if (!parsed.id || parsed.id === 'me') {
+              parsed.id = parsed.email
+                ? `stu_${parsed.email.split('@')[0].toLowerCase().replace(/[^a-z0-9]/g, '_')}`
+                : `stu_${Date.now()}`;
+              localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(parsed));
             }
             return { ...INITIAL_USER, ...parsed };
           }
@@ -133,6 +267,11 @@ class CampusSyncStore {
         if (sanitized.displayName && /avinash/i.test(sanitized.displayName)) {
           sanitized.displayName = 'Campus Member';
         }
+        if (!sanitized.id || sanitized.id === 'me') {
+          sanitized.id = sanitized.email
+            ? `stu_${sanitized.email.split('@')[0].toLowerCase().replace(/[^a-z0-9]/g, '_')}`
+            : `stu_${Date.now()}`;
+        }
         localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(sanitized));
       } catch {
         // Ignore
@@ -143,7 +282,7 @@ class CampusSyncStore {
 
   // Legacy persona compatibility
   public getActivePersonaId(): string {
-    return 'me';
+    return this.getActivePersona().id || 'me';
   }
 
   public setActivePersonaId(_id: string) {
@@ -184,28 +323,215 @@ class CampusSyncStore {
     this.listeners.forEach((cb) => cb());
   }
 
+  // Fetch full data from Supabase Cloud on initialization
+  public async fetchFromSupabase() {
+    if (!supabase || this.isCloudSyncing) return;
+    this.isCloudSyncing = true;
+
+    try {
+      const [profilesRes, requestsRes, matchesRes, messagesRes, helpDeskRes] = await Promise.all([
+        supabase.from('profiles').select('*').order('created_at', { ascending: false }),
+        supabase.from('connection_requests').select('*').order('created_at', { ascending: false }),
+        supabase.from('matches').select('*').order('matched_at', { ascending: false }),
+        supabase.from('messages').select('*').order('created_at', { ascending: true }),
+        supabase.from('help_desk_queries').select('*').order('created_at', { ascending: false })
+      ]);
+
+      const data = this.getSharedData();
+
+      if (profilesRes.data) {
+        data.registeredProfiles = profilesRes.data.map(rowToProfile);
+      }
+      if (requestsRes.data) {
+        data.requests = requestsRes.data.map(rowToRequest);
+      }
+      if (matchesRes.data) {
+        data.matches = matchesRes.data.map(rowToMatch);
+      }
+      if (messagesRes.data) {
+        data.messages = messagesRes.data.map(rowToMessage);
+      }
+      if (helpDeskRes.data && helpDeskRes.data.length > 0) {
+        data.helpDeskQueries = helpDeskRes.data.map(rowToHelpDesk);
+      }
+
+      this.saveSharedData(data);
+    } catch (err) {
+      console.warn('[Supabase Sync] Fetch failed, keeping local cache:', err);
+    } finally {
+      this.isCloudSyncing = false;
+    }
+  }
+
+  // Setup Realtime WebSocket subscription with Supabase
+  private setupSupabaseRealtime() {
+    if (!supabase) return;
+
+    supabase.channel('unwritten_campus_realtime')
+      // 1. Profiles (New registration or updates across campus)
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'profiles' },
+        (payload) => {
+          const data = this.getSharedData();
+          if (payload.eventType === 'INSERT' || payload.eventType === 'UPDATE') {
+            const profile = rowToProfile(payload.new);
+            const idx = data.registeredProfiles.findIndex((p) => p.id === profile.id);
+            if (idx >= 0) {
+              data.registeredProfiles[idx] = profile;
+            } else {
+              data.registeredProfiles = [profile, ...data.registeredProfiles];
+            }
+          } else if (payload.eventType === 'DELETE' && payload.old) {
+            data.registeredProfiles = data.registeredProfiles.filter((p) => p.id !== payload.old.id);
+          }
+          this.saveSharedData(data);
+        }
+      )
+      // 2. Connection Requests (Instant request delivery & alerts)
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'connection_requests' },
+        (payload) => {
+          const data = this.getSharedData();
+          const currentMe = this.getActivePersonaId();
+
+          if (payload.eventType === 'INSERT') {
+            const req = rowToRequest(payload.new);
+            const exists = data.requests.some((r) => r.id === req.id);
+            if (!exists) {
+              data.requests = [req, ...data.requests];
+              // Live notification if sent to this student
+              if (req.receiverId === currentMe) {
+                notificationManager.dispatchNotification(
+                  'New Connection Whisper ✦',
+                  `${req.senderName} sent you a connection request!`,
+                  { type: 'request', linkTab: 'requests', actionLabel: 'View Requests' }
+                );
+                soundscape.playChime(880);
+              }
+            }
+          } else if (payload.eventType === 'UPDATE') {
+            const req = rowToRequest(payload.new);
+            const idx = data.requests.findIndex((r) => r.id === req.id);
+            if (idx >= 0) {
+              data.requests[idx] = req;
+            } else {
+              data.requests = [req, ...data.requests];
+            }
+          } else if (payload.eventType === 'DELETE' && payload.old) {
+            data.requests = data.requests.filter((r) => r.id !== payload.old.id);
+          }
+          this.saveSharedData(data);
+        }
+      )
+      // 3. Matches (Instant match notifications across devices)
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'matches' },
+        (payload) => {
+          const data = this.getSharedData();
+          const currentMe = this.getActivePersonaId();
+
+          if (payload.eventType === 'INSERT') {
+            const match = rowToMatch(payload.new);
+            const exists = data.matches.some((m) => m.id === match.id);
+            if (!exists) {
+              data.matches = [match, ...data.matches];
+              if (match.userAId === currentMe || match.userBId === currentMe) {
+                notificationManager.dispatchNotification(
+                  'It is a Match! 💫',
+                  'Your connection was accepted! Private chat is now unlocked.',
+                  { type: 'chat', linkTab: 'chats', actionLabel: 'Open Chat' }
+                );
+                soundscape.playChime(1046.5);
+              }
+            }
+          } else if (payload.eventType === 'DELETE' && payload.old) {
+            data.matches = data.matches.filter((m) => m.id !== payload.old.id);
+          }
+          this.saveSharedData(data);
+        }
+      )
+      // 4. Messages (Live chat messages between matched students)
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'messages' },
+        (payload) => {
+          const data = this.getSharedData();
+          const currentMe = this.getActivePersonaId();
+
+          if (payload.eventType === 'INSERT') {
+            const msg = rowToMessage(payload.new);
+            const exists = data.messages.some((m) => m.id === msg.id);
+            if (!exists) {
+              data.messages = [...data.messages, msg];
+              if (msg.receiverId === currentMe) {
+                const partnerProfile = this.getProfile(msg.senderId);
+                const senderTitle = partnerProfile?.name || 'Campus Connection';
+                notificationManager.dispatchNotification(
+                  `Message from ${senderTitle} 💬`,
+                  msg.type === 'instagram_share' ? `Shared Instagram handle: ${msg.sharedHandle}` : (msg.text.slice(0, 50) || 'New message'),
+                  { type: 'chat', linkTab: 'chats', actionLabel: 'Reply' }
+                );
+                soundscape.playChime(659.25);
+              }
+            }
+          }
+          this.saveSharedData(data);
+        }
+      )
+      // 5. Help Desk Queries
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'help_desk_queries' },
+        (payload) => {
+          const data = this.getSharedData();
+          if (payload.eventType === 'INSERT') {
+            const query = rowToHelpDesk(payload.new);
+            const exists = data.helpDeskQueries.some((q) => q.id === query.id);
+            if (!exists) {
+              data.helpDeskQueries = [query, ...data.helpDeskQueries];
+            }
+          } else if (payload.eventType === 'UPDATE') {
+            const query = rowToHelpDesk(payload.new);
+            const idx = data.helpDeskQueries.findIndex((q) => q.id === query.id);
+            if (idx >= 0) {
+              data.helpDeskQueries[idx] = query;
+            }
+          }
+          this.saveSharedData(data);
+        }
+      )
+      .subscribe((status) => {
+        if (status === 'SUBSCRIBED') {
+          console.log('[UNWRITTEN Realtime] Connected to Supabase real-time campus mesh.');
+        }
+      });
+  }
+
   // Get student profile by ID
   public getProfile(id: string): StudentProfile | null {
-    if (id === 'me') {
-      const u = this.getActivePersona();
+    const me = this.getActivePersona();
+    if (id === 'me' || id === me.id) {
       return {
-        id: 'me',
-        name: u.displayName || 'Campus Member',
+        id: me.id,
+        name: me.displayName || 'Campus Member',
         age: 20,
-        gender: u.gender || 'male',
-        course: u.course || 'Student',
-        studyYear: u.studyYear || '1st Year',
-        bio: u.bio || '',
+        gender: me.gender || 'male',
+        course: me.course || 'Student',
+        studyYear: me.studyYear || '1st Year',
+        bio: me.bio || '',
         note: 'Writing my campus story on UNWRITTEN.',
-        interests: u.interests || [],
-        seeking: u.seeking || 'both',
+        interests: me.interests || [],
+        seeking: me.seeking || 'both',
         avatarGradient: 'linear-gradient(135deg, #eee5f8, #f4eef8)',
-        avatarChar: (u.displayName || 'C')[0].toUpperCase(),
+        avatarChar: (me.displayName || 'C')[0].toUpperCase(),
         avatarColor: '#7652a0',
-        instagramHandle: u.instagramHandle,
-        rollNumber: u.rollNumber,
-        isIdVerified: u.isIdVerified,
-        idCardImage: u.idCardImage
+        instagramHandle: me.instagramHandle,
+        rollNumber: me.rollNumber,
+        isIdVerified: me.isIdVerified,
+        idCardImage: me.idCardImage
       };
     }
     const data = this.getSharedData();
@@ -217,8 +543,10 @@ class CampusSyncStore {
   public getDiscoverProfiles(currentUserId: string): StudentProfile[] {
     const data = this.getSharedData();
     const registered = data.registeredProfiles || [];
-    // Only real registered students (excluding current user and incomplete profiles)
-    return registered.filter((p) => p.id !== currentUserId && p.name && p.name.trim() !== '');
+    // Only real registered students (excluding current user and blank profiles)
+    return registered.filter(
+      (p) => p.id !== currentUserId && p.id !== 'me' && p.name && p.name.trim() !== ''
+    );
   }
 
   // Save or update a registered campus student profile
@@ -229,10 +557,20 @@ class CampusSyncStore {
     if (idx >= 0) {
       list[idx] = profile;
     } else {
-      list.push(profile);
+      list.unshift(profile);
     }
     data.registeredProfiles = list;
     this.saveSharedData(data);
+
+    // Sync to Supabase Cloud
+    if (supabase) {
+      supabase
+        .from('profiles')
+        .upsert(profileToRow(profile))
+        .then(({ error }) => {
+          if (error) console.error('[Supabase] Failed to upsert profile:', error);
+        });
+    }
   }
 
   // Submit query or suggestion to Help Desk
@@ -256,6 +594,22 @@ class CampusSyncStore {
     };
     data.helpDeskQueries = [newQuery, ...(data.helpDeskQueries || [])];
     this.saveSharedData(data);
+
+    // Sync to Supabase Cloud
+    if (supabase) {
+      supabase.from('help_desk_queries').insert({
+        id: newQuery.id,
+        category: newQuery.category,
+        name: newQuery.name,
+        is_anonymous: newQuery.isAnonymous,
+        email: newQuery.email || '',
+        message: newQuery.message,
+        status: newQuery.status
+      }).then(({ error }) => {
+        if (error) console.error('[Supabase] Failed to submit help desk query:', error);
+      });
+    }
+
     return newQuery;
   }
 
@@ -268,24 +622,28 @@ class CampusSyncStore {
   // Incoming requests for current user
   public getIncomingRequests(currentUserId: string): ConnectionRequest[] {
     const data = this.getSharedData();
-    return data.requests.filter((r) => r.receiverId === currentUserId && r.status === 'pending');
+    return data.requests.filter(
+      (r) => (r.receiverId === currentUserId || (currentUserId === 'me' && r.receiverId === 'me')) && r.status === 'pending'
+    );
   }
 
   // Outgoing requests for current user
   public getOutgoingRequests(currentUserId: string): ConnectionRequest[] {
     const data = this.getSharedData();
-    return data.requests.filter((r) => r.senderId === currentUserId && r.status === 'pending');
+    return data.requests.filter(
+      (r) => (r.senderId === currentUserId || (currentUserId === 'me' && r.senderId === 'me')) && r.status === 'pending'
+    );
   }
 
   // Active matches for current user
   public getMatches(currentUserId: string): ActiveMatch[] {
     const data = this.getSharedData();
     const userMatches = data.matches.filter(
-      (m) => m.userAId === currentUserId || m.userBId === currentUserId
+      (m) => m.userAId === currentUserId || m.userBId === currentUserId || (currentUserId === 'me' && (m.userAId === 'me' || m.userBId === 'me'))
     );
 
     return userMatches.map((m) => {
-      const partnerId = m.userAId === currentUserId ? m.userBId : m.userAId;
+      const partnerId = (m.userAId === currentUserId || m.userAId === 'me') ? m.userBId : m.userAId;
       const partnerProfile: StudentProfile = this.getProfile(partnerId) || {
         id: partnerId,
         name: 'Student',
@@ -315,7 +673,7 @@ class CampusSyncStore {
         unreadCount: 0,
         messages: matchMessages.map((msg) => ({
           id: msg.id,
-          senderId: msg.senderId === currentUserId ? 'me' : msg.senderId,
+          senderId: (msg.senderId === currentUserId || msg.senderId === 'me') ? 'me' : msg.senderId,
           text: msg.text,
           timestamp: msg.timestamp,
           type: msg.type,
@@ -336,7 +694,7 @@ class CampusSyncStore {
     if (exists) return;
 
     const newReq: ConnectionRequest = {
-      id: `req-${Date.now()}-${Math.random().toString(36).substr(2, 4)}`,
+      id: `req-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
       senderId: sender.id,
       senderName: sender.displayName,
       senderCourse: sender.course,
@@ -352,8 +710,18 @@ class CampusSyncStore {
       timestamp: 'Just now'
     };
 
-    data.requests.push(newReq);
+    data.requests.unshift(newReq);
     this.saveSharedData(data);
+
+    // Sync to Supabase Cloud
+    if (supabase) {
+      supabase
+        .from('connection_requests')
+        .insert(requestToRow(newReq))
+        .then(({ error }) => {
+          if (error) console.error('[Supabase] Failed to insert request:', error);
+        });
+    }
   }
 
   // Accept a connection request
@@ -365,25 +733,67 @@ class CampusSyncStore {
     req.status = 'accepted';
 
     const matchId = `match-${Date.now()}`;
-    data.matches.push({
+    const newMatch = {
       id: matchId,
       userAId: req.senderId,
       userBId: req.receiverId,
       matchedAt: 'Just now'
-    });
+    };
+    data.matches.unshift(newMatch);
 
+    let firstMsg: any = null;
     if (req.note) {
-      data.messages.push({
+      firstMsg = {
         id: `msg-${Date.now()}`,
         matchId,
         senderId: req.senderId,
         receiverId: req.receiverId,
         text: req.note,
         timestamp: 'Just now'
-      });
+      };
+      data.messages.push(firstMsg);
     }
 
     this.saveSharedData(data);
+
+    // Sync to Supabase Cloud
+    if (supabase) {
+      supabase
+        .from('connection_requests')
+        .update({ status: 'accepted' })
+        .eq('id', requestId)
+        .then(({ error }) => {
+          if (error) console.error('[Supabase] Failed to update request:', error);
+        });
+
+      supabase
+        .from('matches')
+        .insert({
+          id: matchId,
+          user_a_id: req.senderId,
+          user_b_id: req.receiverId,
+          matched_at: new Date().toISOString()
+        })
+        .then(({ error }) => {
+          if (error) console.error('[Supabase] Failed to insert match:', error);
+        });
+
+      if (firstMsg) {
+        supabase
+          .from('messages')
+          .insert({
+            id: firstMsg.id,
+            match_id: matchId,
+            sender_id: firstMsg.senderId,
+            receiver_id: firstMsg.receiverId,
+            text: firstMsg.text,
+            type: 'text'
+          })
+          .then(({ error }) => {
+            if (error) console.error('[Supabase] Failed to insert initial message:', error);
+          });
+      }
+    }
   }
 
   // Decline a request
@@ -391,6 +801,16 @@ class CampusSyncStore {
     const data = this.getSharedData();
     data.requests = data.requests.filter((r) => r.id !== requestId);
     this.saveSharedData(data);
+
+    if (supabase) {
+      supabase
+        .from('connection_requests')
+        .delete()
+        .eq('id', requestId)
+        .then(({ error }) => {
+          if (error) console.error('[Supabase] Failed to delete request:', error);
+        });
+    }
   }
 
   // Withdraw an outgoing request
@@ -398,6 +818,16 @@ class CampusSyncStore {
     const data = this.getSharedData();
     data.requests = data.requests.filter((r) => r.id !== requestId);
     this.saveSharedData(data);
+
+    if (supabase) {
+      supabase
+        .from('connection_requests')
+        .delete()
+        .eq('id', requestId)
+        .then(({ error }) => {
+          if (error) console.error('[Supabase] Failed to delete request:', error);
+        });
+    }
   }
 
   // Send message
@@ -407,17 +837,36 @@ class CampusSyncStore {
     if (!match) return;
 
     const receiverId = match.userAId === senderId ? match.userBId : match.userAId;
+    const msgId = `msg-${Date.now()}`;
 
-    data.messages.push({
-      id: `msg-${Date.now()}`,
+    const newMsg = {
+      id: msgId,
       matchId,
       senderId,
       receiverId,
       text,
       timestamp: 'Just now'
-    });
+    };
 
+    data.messages.push(newMsg);
     this.saveSharedData(data);
+
+    // Sync to Supabase Cloud
+    if (supabase) {
+      supabase
+        .from('messages')
+        .insert({
+          id: msgId,
+          match_id: matchId,
+          sender_id: senderId,
+          receiver_id: receiverId,
+          text,
+          type: 'text'
+        })
+        .then(({ error }) => {
+          if (error) console.error('[Supabase] Failed to insert message:', error);
+        });
+    }
   }
 
   // Voluntarily share Instagram handle
@@ -427,19 +876,39 @@ class CampusSyncStore {
     if (!match) return;
 
     const receiverId = match.userAId === senderId ? match.userBId : match.userAId;
+    const msgId = `ig-${Date.now()}`;
 
-    data.messages.push({
-      id: `ig-${Date.now()}`,
+    const newMsg = {
+      id: msgId,
       matchId,
       senderId,
       receiverId,
       text: `Voluntarily shared Instagram handle: ${handle}`,
-      type: 'instagram_share',
+      type: 'instagram_share' as const,
       sharedHandle: handle,
       timestamp: 'Just now'
-    });
+    };
 
+    data.messages.push(newMsg);
     this.saveSharedData(data);
+
+    // Sync to Supabase Cloud
+    if (supabase) {
+      supabase
+        .from('messages')
+        .insert({
+          id: msgId,
+          match_id: matchId,
+          sender_id: senderId,
+          receiver_id: receiverId,
+          text: newMsg.text,
+          type: 'instagram_share',
+          shared_handle: handle
+        })
+        .then(({ error }) => {
+          if (error) console.error('[Supabase] Failed to insert instagram share message:', error);
+        });
+    }
   }
 
   // Unmatch
@@ -448,6 +917,23 @@ class CampusSyncStore {
     data.matches = data.matches.filter((m) => m.id !== matchId);
     data.messages = data.messages.filter((m) => m.matchId !== matchId);
     this.saveSharedData(data);
+
+    if (supabase) {
+      supabase
+        .from('matches')
+        .delete()
+        .eq('id', matchId)
+        .then(({ error }) => {
+          if (error) console.error('[Supabase] Failed to delete match:', error);
+        });
+      supabase
+        .from('messages')
+        .delete()
+        .eq('match_id', matchId)
+        .then(({ error }) => {
+          if (error) console.error('[Supabase] Failed to delete match messages:', error);
+        });
+    }
   }
 
   // Saved profiles

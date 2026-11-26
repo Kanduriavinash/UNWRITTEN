@@ -107,8 +107,13 @@ export const CampusAuthView: React.FC<CampusAuthViewProps> = ({
 
     const finalCourse = course === 'Other' ? (otherCourse.trim() || 'Other') : course;
 
+    // Generate unique, deterministic campus student ID based on institutional email
+    const studentUid = cleanEmail
+      ? `stu_${cleanEmail.split('@')[0].toLowerCase().replace(/[^a-z0-9]/g, '_')}`
+      : `stu_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`;
+
     const userProfile: CurrentUserProfile = {
-      id: 'me',
+      id: studentUid,
       displayName: fullName.trim() || 'Campus Student',
       email: cleanEmail,
       isVerified: true,

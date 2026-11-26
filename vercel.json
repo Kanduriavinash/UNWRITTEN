@@ -1,4 +1,5 @@
 {
+  "name": "unwritten-campus",
   "framework": "vite",
   "rewrites": [
     {

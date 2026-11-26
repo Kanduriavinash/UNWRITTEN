@@ -4,6 +4,7 @@ export interface StudentProfile {
   id: string;
   name: string;
   age: number;
+  gender: 'male' | 'female' | 'other';
   course: string;
   studyYear: string;
   bio: string;
@@ -16,6 +17,9 @@ export interface StudentProfile {
   favoriteHangout?: string;
   musicTaste?: string;
   instagramHandle?: string; // Strictly private until voluntarily shared in chat
+  rollNumber?: string;
+  isIdVerified?: boolean;
+  idCardImage?: string;
 }
 
 export interface ConnectionRequest {
@@ -60,6 +64,7 @@ export interface CurrentUserProfile {
   email: string;
   isVerified: boolean;
   collegeDomain: string;
+  gender: 'male' | 'female' | 'other';
   course: string;
   studyYear: string;
   bio: string;
@@ -68,6 +73,9 @@ export interface CurrentUserProfile {
   isInvisible: boolean;
   instagramHandle: string;
   rollNumber?: string;
+  isIdVerified: boolean;
+  idCardImage?: string;
+  isAuthenticated: boolean;
 }
 
 export type HelpDeskCategory = 'feature' | 'query' | 'bug' | 'safety' | 'general';

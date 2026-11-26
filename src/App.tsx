@@ -7,6 +7,7 @@ import { ChatTab } from './components/ChatTab';
 import { SavedTab } from './components/SavedTab';
 import { ProfileTab } from './components/ProfileTab';
 import { AuthModal } from './components/AuthModal';
+import { CampusAuthView } from './components/CampusAuthView';
 import { HelpDeskModal } from './components/HelpDeskModal';
 import { StoryPrologue } from './components/StoryPrologue';
 import { CelestialCanvas } from './components/CelestialCanvas';
@@ -36,7 +37,7 @@ export default function App() {
   const [outgoingRequests, setOutgoingRequests] = useState<ConnectionRequest[]>([]);
   const [matches, setMatches] = useState<ActiveMatch[]>([]);
   const [activeMatchId, setActiveMatchId] = useState<string | null>(null);
-  const [collegeDomain, setCollegeDomain] = useState<string>('srmist.edu.in');
+  const [collegeDomain, setCollegeDomain] = useState<string>('am.students.amrita.edu');
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [helpDeskOpen, setHelpDeskOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -191,6 +192,48 @@ export default function App() {
     return <StoryPrologue onEnterCampus={handleEnterCampus} />;
   }
 
+  // If not registered/authenticated, show the Campus Registration & Sign-In Page
+  if (!currentUser.isAuthenticated) {
+    return (
+      <div className="shell app-root">
+        <CelestialCanvas interactive={true} />
+        <CampusAuthView
+          collegeDomain={collegeDomain}
+          onAuthSuccess={(authProfile) => {
+            setCurrentUser(authProfile);
+            syncStore.saveActivePersona(authProfile);
+            syncStore.saveRegisteredProfile({
+              id: authProfile.id,
+              name: authProfile.displayName,
+              age: 20,
+              gender: authProfile.gender,
+              course: authProfile.course,
+              studyYear: authProfile.studyYear,
+              bio: authProfile.bio,
+              note: 'Writing my campus story on UNWRITTEN.',
+              interests: authProfile.interests,
+              seeking: authProfile.seeking,
+              avatarGradient: 'linear-gradient(135deg, #eee5f8, #f4eef8)',
+              avatarChar: (authProfile.displayName || 'C')[0].toUpperCase(),
+              avatarColor: '#7652a0',
+              instagramHandle: authProfile.instagramHandle,
+              rollNumber: authProfile.rollNumber,
+              isIdVerified: authProfile.isIdVerified,
+              idCardImage: authProfile.idCardImage
+            });
+            refreshState();
+            showToast(`Welcome to UNWRITTEN, ${authProfile.displayName}!`);
+          }}
+        />
+        {toastMessage && (
+          <div className="toast-notification">
+            <span>{toastMessage}</span>
+          </div>
+        )}
+      </div>
+    );
+  }
+
   return (
     <div className="shell app-root">
       {/* Living Celestial Particle Backdrop */}
@@ -222,6 +265,7 @@ export default function App() {
             onToggleSave={handleToggleSave}
             onSendHello={handleSendHello}
             userInterests={currentUser.interests}
+            userGender={currentUser.gender}
             onNavigateToProfile={() => setActiveTab('profile')}
             onOpenHelpDesk={() => setHelpDeskOpen(true)}
           />
@@ -271,6 +315,7 @@ export default function App() {
                 id: updated.id,
                 name: updated.displayName,
                 age: 20,
+                gender: updated.gender,
                 course: updated.course,
                 studyYear: updated.studyYear,
                 bio: updated.bio,
@@ -280,7 +325,10 @@ export default function App() {
                 avatarGradient: 'linear-gradient(135deg, #eee5f8, #f4eef8)',
                 avatarChar: (updated.displayName || 'C')[0].toUpperCase(),
                 avatarColor: '#7652a0',
-                instagramHandle: updated.instagramHandle
+                instagramHandle: updated.instagramHandle,
+                rollNumber: updated.rollNumber,
+                isIdVerified: updated.isIdVerified,
+                idCardImage: updated.idCardImage
               });
               refreshState();
               showToast('Profile updated & active on campus ♡');

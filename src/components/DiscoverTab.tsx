@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { Sparkles, Heart, HeartHandshake, Bookmark, ArrowUpRight, LockKeyhole, MessageSquareQuote, Check, HelpCircle, BookHeart } from 'lucide-react';
+import { Sparkles, Heart, HeartHandshake, Bookmark, ArrowUpRight, LockKeyhole, MessageSquareQuote, Check, HelpCircle, BookHeart, Users } from 'lucide-react';
 import type { StudentProfile, SeekingIntent } from '../types';
 import { soundscape } from '../lib/soundscapes';
 import { ConstellationMap } from './ConstellationMap';
+import { VerifiedBadge } from './VerifiedBadge';
 
 const VIBE_CATEGORIES = [
   { id: 'All', label: 'All Stories', icon: '✨' },
@@ -26,6 +27,7 @@ interface DiscoverTabProps {
   onToggleSave: (profileId: string) => void;
   onSendHello: (profile: StudentProfile, customNote?: string) => void;
   userInterests: string[];
+  userGender?: 'male' | 'female' | 'other';
   onNavigateToProfile?: () => void;
   onOpenHelpDesk?: () => void;
 }
@@ -37,6 +39,7 @@ export const DiscoverTab: React.FC<DiscoverTabProps> = ({
   onToggleSave,
   onSendHello,
   userInterests,
+  userGender = 'male',
   onNavigateToProfile,
   onOpenHelpDesk
 }) => {
@@ -48,18 +51,12 @@ export const DiscoverTab: React.FC<DiscoverTabProps> = ({
   const [customNote, setCustomNote] = useState<string>('');
   const [blushAlert, setBlushAlert] = useState<{ name: string; isSaved: boolean } | null>(null);
 
-  const handleSaveToggle = (profile: StudentProfile) => {
-    const nextSaved = !savedIds.includes(profile.id);
-    onToggleSave(profile.id);
-    setBlushAlert({ name: profile.name, isSaved: nextSaved });
-    soundscape.playChime(nextSaved ? 659.25 : 440.0);
-    setTimeout(() => {
-      setBlushAlert((curr) => (curr?.name === profile.name ? null : curr));
-    }, 4500);
-  };
-
-  // Filtering
+  // Filtering with gender-based matching
   const filteredProfiles = profiles.filter((profile) => {
+    // If current user is male, show female profiles; if female, show male profiles
+    if (userGender === 'male' && profile.gender && profile.gender !== 'female') return false;
+    if (userGender === 'female' && profile.gender && profile.gender !== 'male') return false;
+
     // Intent filter
     if (intentFilter === 'Friendship' && profile.seeking === 'dating') return false;
     if (intentFilter === 'Dating' && profile.seeking === 'friendship') return false;
@@ -69,6 +66,16 @@ export const DiscoverTab: React.FC<DiscoverTabProps> = ({
 
     return true;
   });
+
+  const handleSaveToggle = (profile: StudentProfile) => {
+    const nextSaved = !savedIds.includes(profile.id);
+    onToggleSave(profile.id);
+    setBlushAlert({ name: profile.name, isSaved: nextSaved });
+    soundscape.playChime(nextSaved ? 659.25 : 440.0);
+    setTimeout(() => {
+      setBlushAlert((curr) => (curr?.name === profile.name ? null : curr));
+    }, 4500);
+  };
 
   const handleOpenHelloModal = (profile: StudentProfile) => {
     if (sentRequestIds.includes(profile.id)) return;
@@ -131,6 +138,10 @@ export const DiscoverTab: React.FC<DiscoverTabProps> = ({
         </p>
 
         <div className="hero-pills">
+          <div className="trust-pill gender-match-pill">
+            <Users size={14} />
+            <span>Showing {userGender === 'male' ? 'female students' : userGender === 'female' ? 'male students' : 'all students'} on campus</span>
+          </div>
           <div className="trust-pill">
             <LockKeyhole size={14} />
             <span>Private details stay private until you both choose to share.</span>
@@ -254,6 +265,7 @@ export const DiscoverTab: React.FC<DiscoverTabProps> = ({
                     <div className="card-name-row">
                       <h3>
                         {p.name}
+                        {p.isIdVerified && <VerifiedBadge size={14} />}
                         <span className="age-tag"> · {p.age}+</span>
                       </h3>
                     </div>
@@ -364,7 +376,10 @@ export const DiscoverTab: React.FC<DiscoverTabProps> = ({
 
             <div className="modal-content">
               <div className="modal-eyebrow">STUDENT PROFILE</div>
-              <h2>{activeStoryModal.name}, {activeStoryModal.age}</h2>
+              <h2>
+                {activeStoryModal.name}, {activeStoryModal.age}
+                {activeStoryModal.isIdVerified && <VerifiedBadge size={16} showLabel={true} />}
+              </h2>
               <p className="modal-sub">{activeStoryModal.studyYear} · {activeStoryModal.course}</p>
 
               <div className="modal-section">

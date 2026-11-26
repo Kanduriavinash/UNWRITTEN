@@ -121,7 +121,7 @@ export const HelpDeskModal: React.FC<HelpDeskModalProps> = ({
                 <span className="guide-hero-tag">THE UNWRITTEN PHILOSOPHY</span>
                 <h3>A quiet, intentional sanctuary for campus connection.</h3>
                 <p>
-                  Most college apps turn students into 0.4-second thumbnails. UNWRITTEN is intentionally built differently: no public games, no follower counts, and zero unsolicited messages.
+                  UNWRITTEN is intentionally built differently: a quiet sanctuary for genuine campus connection, with no public games, no follower counts, and zero unsolicited messages.
                 </p>
               </div>
 
@@ -311,7 +311,7 @@ export const HelpDeskModal: React.FC<HelpDeskModalProps> = ({
                         <label>Your Email (Optional, if you'd like a response)</label>
                         <input
                           type="email"
-                          placeholder="student@campus.edu"
+                          placeholder="your_roll@am.students.amrita.edu"
                           value={email}
                           onChange={(e) => setEmail(e.target.value)}
                         />

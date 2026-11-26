@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { BookHeart, Compass, Heart, MessageCircle, Bookmark, UserRound, Shield, RefreshCw, Sparkles, Volume2, VolumeX, HelpCircle } from 'lucide-react';
 import type { CurrentUserProfile } from '../types';
+import { VerifiedBadge } from './VerifiedBadge';
 
 interface NavigationProps {
   activeTab: 'discover' | 'requests' | 'chats' | 'saved' | 'profile';
@@ -162,6 +163,7 @@ export const Navigation: React.FC<NavigationProps> = ({
                   ? currentUser.displayName
                   : 'My Story'}
               </span>
+              {currentUser.isIdVerified && <VerifiedBadge size={13} />}
               <span className="persona-arrow">▾</span>
             </button>
 
@@ -175,9 +177,12 @@ export const Navigation: React.FC<NavigationProps> = ({
                   </div>
                   <div className="account-details">
                     <strong className="account-name-text">
-                      {currentUser.displayName && currentUser.displayName !== 'Campus Member'
-                        ? currentUser.displayName
-                        : 'Campus Storyteller'}
+                      <span>
+                        {currentUser.displayName && currentUser.displayName !== 'Campus Member'
+                          ? currentUser.displayName
+                          : 'Campus Storyteller'}
+                      </span>
+                      {currentUser.isIdVerified && <VerifiedBadge size={13} />}
                     </strong>
                     <span className="account-subtext">
                       {currentUser.studyYear} · {currentUser.course.split('&')[0]}

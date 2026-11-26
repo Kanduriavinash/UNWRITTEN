@@ -163,17 +163,17 @@ export const StoryPrologue: React.FC<StoryPrologueProps> = ({ onEnterCampus }) =
               <Heart size={14} /> CHAPTER II · WHY MODERN DATING FEELS EMPTY
             </div>
             <h1 className="prologue-title">
-              Swiping turned human souls into <em>four-second thumbnails.</em>
+              Connection should begin with <em>substance and soul.</em>
             </h1>
             <p className="prologue-lede">
-              Algorithms optimized for dopamine, not depth. Public follower counts. The anxiety of feeling judged before a single word is ever spoken.
+              A private campus space designed for depth — no public follower metrics, no superficial rating games, and zero unwanted messages.
             </p>
 
             <div className="contrast-grid">
               <div className="contrast-card traditional">
                 <span className="contrast-badge">Traditional Dating Apps</span>
                 <ul>
-                  <li>✕ Faces judged in 0.4 seconds</li>
+                  <li>✕ Superficial, rushed judgements</li>
                   <li>✕ Public profiles exposed to anyone</li>
                   <li>✕ Pressure of performance & followers</li>
                   <li>✕ Superficial pickup lines</li>

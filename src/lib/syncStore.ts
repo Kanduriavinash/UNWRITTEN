@@ -29,7 +29,7 @@ export interface SharedStorageData {
   helpDeskQueries: HelpDeskQuery[];
 }
 
-const STORAGE_KEY = 'unwritten_shared_state_v3';
+const STORAGE_KEY = 'unwritten_shared_state_v4';
 const BROADCAST_CHANNEL_NAME = 'unwritten_campus_sync';
 
 // Default initial shared state for production
@@ -38,7 +38,7 @@ const DEFAULT_SHARED_DATA: SharedStorageData = {
   matches: [],
   messages: [],
   savedByUser: {},
-  registeredProfiles: [],
+  registeredProfiles: INITIAL_PROFILES,
   helpDeskQueries: [
     {
       id: 'UNW-1001',
@@ -183,6 +183,7 @@ class CampusSyncStore {
         id: 'me',
         name: u.displayName || 'Campus Member',
         age: 20,
+        gender: u.gender || 'male',
         course: u.course || 'Student',
         studyYear: u.studyYear || '1st Year',
         bio: u.bio || '',
@@ -192,7 +193,10 @@ class CampusSyncStore {
         avatarGradient: 'linear-gradient(135deg, #eee5f8, #f4eef8)',
         avatarChar: (u.displayName || 'C')[0].toUpperCase(),
         avatarColor: '#7652a0',
-        instagramHandle: u.instagramHandle
+        instagramHandle: u.instagramHandle,
+        rollNumber: u.rollNumber,
+        isIdVerified: u.isIdVerified,
+        idCardImage: u.idCardImage
       };
     }
     const data = this.getSharedData();
@@ -206,8 +210,14 @@ class CampusSyncStore {
   public getDiscoverProfiles(currentUserId: string): StudentProfile[] {
     const data = this.getSharedData();
     const registered = data.registeredProfiles || [];
+    const combined: StudentProfile[] = [...registered];
+    for (const p of INITIAL_PROFILES) {
+      if (!combined.some((item) => item.id === p.id)) {
+        combined.push(p);
+      }
+    }
     // Filter out current user and any incomplete profiles
-    return registered.filter((p) => p.id !== currentUserId && p.name && p.name.trim() !== '');
+    return combined.filter((p) => p.id !== currentUserId && p.name && p.name.trim() !== '');
   }
 
   // Save or update a registered campus student profile
@@ -275,19 +285,21 @@ class CampusSyncStore {
 
     return userMatches.map((m) => {
       const partnerId = m.userAId === currentUserId ? m.userBId : m.userAId;
-      const partnerProfile = this.getProfile(partnerId) || {
+      const partnerProfile: StudentProfile = this.getProfile(partnerId) || {
         id: partnerId,
         name: 'Student',
         age: 20,
+        gender: 'female',
         course: 'General',
         studyYear: '1st Year',
         bio: '',
         note: '',
         interests: [],
-        seeking: 'both' as const,
+        seeking: 'both',
         avatarGradient: 'linear-gradient(135deg, #eee, #ddd)',
         avatarChar: 'S',
-        avatarColor: '#7652a0'
+        avatarColor: '#7652a0',
+        isIdVerified: true
       };
 
       const matchMessages = data.messages.filter((msg) => msg.matchId === m.id);

@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
-import { UserRound, LockKeyhole, EyeOff, Eye, Check, ShieldCheck } from 'lucide-react';
+import React, { useState, useRef } from 'react';
+import { UserRound, LockKeyhole, EyeOff, Eye, Check, ShieldCheck, Upload, UserCheck } from 'lucide-react';
 import type { CurrentUserProfile } from '../types';
 import { INTEREST_TAGS } from '../data/mockData';
+import { VerifiedBadge } from './VerifiedBadge';
 
 interface ProfileTabProps {
   user: CurrentUserProfile;
@@ -16,8 +17,26 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
 }) => {
   const [formData, setFormData] = useState<CurrentUserProfile>({ ...user });
   const [isSavedAlert, setIsSavedAlert] = useState(false);
+  const profileFileInputRef = useRef<HTMLInputElement>(null);
 
   const availableTags = INTEREST_TAGS.filter((t) => t !== 'All');
+
+  const handleIdCardUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const result = event.target?.result as string;
+      const updated = {
+        ...formData,
+        idCardImage: result,
+        isIdVerified: true
+      };
+      setFormData(updated);
+      onUpdateUser(updated);
+    };
+    reader.readAsDataURL(file);
+  };
 
   const handleToggleTag = (tag: string) => {
     if (formData.interests.includes(tag)) {
@@ -174,6 +193,58 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
               </div>
               <span className="input-hint highlight-hint">
                 🔒 Strictly private. Used solely for campus identity validation. Your details will not be shared anywhere.
+              </span>
+            </div>
+
+            {/* College ID Card Upload & Verified Badge */}
+            <div className="input-group private-group id-card-manage-group">
+              <div className="private-label-row">
+                <label className="private-label">
+                  <UserCheck size={14} color="#55e08b" /> College ID Card Verification
+                </label>
+                {formData.isIdVerified ? (
+                  <VerifiedBadge size={14} showLabel={true} />
+                ) : (
+                  <span className="unverified-pill">Pending ID Upload</span>
+                )}
+              </div>
+              <div className="id-tab-uploader">
+                {formData.idCardImage ? (
+                  <div className="id-uploaded-preview">
+                    <img src={formData.idCardImage} alt="College ID Card" className="id-preview-thumb" />
+                    <div className="id-preview-meta">
+                      <span className="id-verified-tick-note">
+                        <Check size={13} /> Official ID Attached · Verified Student
+                      </span>
+                      <button
+                        type="button"
+                        className="change-id-btn"
+                        onClick={() => profileFileInputRef.current?.click()}
+                      >
+                        Change ID Photo
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    className="upload-id-btn"
+                    onClick={() => profileFileInputRef.current?.click()}
+                  >
+                    <Upload size={15} />
+                    <span>Upload Student ID Card for Verified Badge</span>
+                  </button>
+                )}
+                <input
+                  type="file"
+                  ref={profileFileInputRef}
+                  accept="image/*"
+                  onChange={handleIdCardUpload}
+                  style={{ display: 'none' }}
+                />
+              </div>
+              <span className="input-hint highlight-hint">
+                Earns the exclusive White Tick on Black Circle badge on your campus handle.
               </span>
             </div>
 

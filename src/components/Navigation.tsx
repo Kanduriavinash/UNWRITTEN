@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { BookHeart, Compass, Heart, MessageCircle, Bookmark, UserRound, Shield, RefreshCw, Sparkles, Volume2, VolumeX, HelpCircle, Bell, Download, Smartphone } from 'lucide-react';
+import { BookHeart, Compass, Heart, MessageCircle, Bookmark, UserRound, Shield, RefreshCw, Sparkles, Volume2, VolumeX, HelpCircle, Bell, Download, Smartphone, LogOut } from 'lucide-react';
 import type { CurrentUserProfile, NavTab } from '../types';
 import { VerifiedBadge } from './VerifiedBadge';
 
@@ -13,6 +13,7 @@ interface NavigationProps {
   currentUser: CurrentUserProfile;
   onSwitchUser?: (userId: string) => void;
   onResetDemo: () => void;
+  onSignOut?: () => void;
   onOpenPrologue: () => void;
   onOpenHelpDesk: () => void;
   onOpenNotifications: () => void;
@@ -31,6 +32,7 @@ export const Navigation: React.FC<NavigationProps> = ({
   campusDomain,
   currentUser,
   onResetDemo,
+  onSignOut,
   onOpenPrologue,
   onOpenHelpDesk,
   onOpenNotifications,
@@ -286,6 +288,19 @@ export const Navigation: React.FC<NavigationProps> = ({
                     <Sparkles size={14} />
                     <span>The Story Prologue</span>
                   </button>
+
+                  {onSignOut && (
+                    <button
+                      className="account-action-item signout-action-item"
+                      onClick={() => {
+                        setSwitcherOpen(false);
+                        onSignOut();
+                      }}
+                    >
+                      <LogOut size={14} />
+                      <span>Sign Out / Switch Student</span>
+                    </button>
+                  )}
                 </div>
 
                 <div className="dropdown-footer">

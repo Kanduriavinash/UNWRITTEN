@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Send, Instagram, ShieldAlert, ArrowLeft, Sparkles, CheckCheck } from 'lucide-react';
 import type { ActiveMatch } from '../types';
 import { ICEBREAKER_PROMPTS } from '../data/mockData';
+import { syncStore } from '../lib/syncStore';
 
 interface ChatTabProps {
   matches: ActiveMatch[];
@@ -354,7 +355,13 @@ export const ChatTab: React.FC<ChatTabProps> = ({
                 <button
                   className="primary-btn danger-btn"
                   onClick={() => {
-                    alert(`Report submitted for ${activeMatch.profile.name}. They have been blocked and unnmacthed.`);
+                    syncStore.submitHelpDeskQuery({
+                      category: 'safety',
+                      name: 'Anonymous Student',
+                      isAnonymous: true,
+                      message: `[Safety Report] Student reported user ${activeMatch.profile.name} (ID: ${activeMatch.profile.id}). Reason: ${reportReason}`
+                    });
+                    alert(`Report submitted for ${activeMatch.profile.name}. They have been blocked and unmatched.`);
                     onUnmatch(activeMatch.id);
                     setReportModalOpen(false);
                   }}

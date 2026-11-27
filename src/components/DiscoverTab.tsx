@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Sparkles, Heart, HeartHandshake, Bookmark, ArrowUpRight, LockKeyhole, MessageSquareQuote, Check, HelpCircle, BookHeart, Users } from 'lucide-react';
+import { Sparkles, Heart, HeartHandshake, Bookmark, ArrowUpRight, LockKeyhole, MessageSquareQuote, Check, HelpCircle, BookHeart, Users, Share2, Copy } from 'lucide-react';
 import type { StudentProfile, SeekingIntent } from '../types';
 import { soundscape } from '../lib/soundscapes';
 import { ConstellationMap } from './ConstellationMap';
@@ -50,6 +50,21 @@ export const DiscoverTab: React.FC<DiscoverTabProps> = ({
   const [helloModalProfile, setHelloModalProfile] = useState<StudentProfile | null>(null);
   const [customNote, setCustomNote] = useState<string>('');
   const [blushAlert, setBlushAlert] = useState<{ name: string; isSaved: boolean } | null>(null);
+  const [copiedLink, setCopiedLink] = useState(false);
+
+  const inviteQuoteText = "Your campus is full of people you haven’t met yet. 👀 Your next friendship, crush, or favourite hello starts on UNWRITTEN. ✨\n\nhttps://unwritten-campus.vercel.app";
+
+  const handleShareWhatsApp = () => {
+    soundscape.playChime(880);
+    window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(inviteQuoteText)}`, '_blank', 'noopener,noreferrer');
+  };
+
+  const handleCopyLink = () => {
+    soundscape.playChime(1046.5);
+    navigator.clipboard.writeText(inviteQuoteText);
+    setCopiedLink(true);
+    setTimeout(() => setCopiedLink(false), 3000);
+  };
 
   // Filtering with gender-based matching
   const filteredProfiles = profiles.filter((profile) => {
@@ -225,10 +240,34 @@ export const DiscoverTab: React.FC<DiscoverTabProps> = ({
               <Sparkles size={38} className="halo-spin" />
             </div>
             <h3>The Campus Constellation is Fresh & Unwritten ✨</h3>
+
+            <div className="campus-quote-card">
+              <p className="campus-quote-text">
+                “Your campus is full of people you haven’t met yet. 👀 Your next friendship, crush, or favourite hello starts on <strong>UNWRITTEN</strong>. ✨”
+              </p>
+            </div>
+
             <p className="empty-state-desc">
-              You are among the very first campus pioneers to enter the sanctuary! As verified students from @am.students.amrita.edu sign up, their stars will illuminate this interactive constellation.
+              You are among the very first campus pioneers to enter the sanctuary! Invite your batchmates to ignite the stars on this constellation.
             </p>
+
             <div className="empty-state-actions">
+              <button
+                type="button"
+                className="empty-cta-btn whatsapp-share-btn"
+                onClick={handleShareWhatsApp}
+              >
+                <Share2 size={16} />
+                <span>Share to WhatsApp GC 📲</span>
+              </button>
+              <button
+                type="button"
+                className="empty-cta-btn secondary-btn"
+                onClick={handleCopyLink}
+              >
+                {copiedLink ? <Check size={16} /> : <Copy size={16} />}
+                <span>{copiedLink ? 'Invite Copied!' : 'Copy Invite Link 📋'}</span>
+              </button>
               <button
                 type="button"
                 className="empty-cta-btn primary-btn"
@@ -237,14 +276,16 @@ export const DiscoverTab: React.FC<DiscoverTabProps> = ({
                 <BookHeart size={16} />
                 <span>Write Your Story in My Story ↗</span>
               </button>
-              <button
-                type="button"
-                className="empty-cta-btn secondary-btn"
-                onClick={() => onOpenHelpDesk?.()}
-              >
-                <HelpCircle size={16} />
-                <span>Campus Help Desk & Guide 💬</span>
-              </button>
+              {onOpenHelpDesk && (
+                <button
+                  type="button"
+                  className="empty-cta-btn secondary-btn"
+                  onClick={() => onOpenHelpDesk()}
+                >
+                  <HelpCircle size={16} />
+                  <span>Campus Help Desk</span>
+                </button>
+              )}
             </div>
           </div>
         ) : (
@@ -356,10 +397,34 @@ export const DiscoverTab: React.FC<DiscoverTabProps> = ({
                 <Sparkles size={38} className="halo-spin" />
               </div>
               <h3>The Campus Canvas is Fresh & Unwritten ✨</h3>
+
+              <div className="campus-quote-card">
+                <p className="campus-quote-text">
+                  “Your campus is full of people you haven’t met yet. 👀 Your next friendship, crush, or favourite hello starts on <strong>UNWRITTEN</strong>. ✨”
+                </p>
+              </div>
+
               <p className="empty-state-desc">
-                You are one of the very first storytellers here! Step into <strong>My Story</strong> to share your passions so peers can discover you, or invite classmates to begin connecting.
+                Be the pioneer to spark the flame! Share this with your batch WhatsApp group or hostel circle to start uncovering campus stories.
               </p>
+
               <div className="empty-state-actions">
+                <button
+                  type="button"
+                  className="empty-cta-btn whatsapp-share-btn"
+                  onClick={handleShareWhatsApp}
+                >
+                  <Share2 size={16} />
+                  <span>Share to WhatsApp GC 📲</span>
+                </button>
+                <button
+                  type="button"
+                  className="empty-cta-btn secondary-btn"
+                  onClick={handleCopyLink}
+                >
+                  {copiedLink ? <Check size={16} /> : <Copy size={16} />}
+                  <span>{copiedLink ? 'Invite Copied!' : 'Copy Invite Link 📋'}</span>
+                </button>
                 <button
                   type="button"
                   className="empty-cta-btn primary-btn"
@@ -368,14 +433,16 @@ export const DiscoverTab: React.FC<DiscoverTabProps> = ({
                   <BookHeart size={16} />
                   <span>Write Your Story in My Story ↗</span>
                 </button>
-                <button
-                  type="button"
-                  className="empty-cta-btn secondary-btn"
-                  onClick={() => onOpenHelpDesk?.()}
-                >
-                  <HelpCircle size={16} />
-                  <span>Campus Help Desk & Guide 💬</span>
-                </button>
+                {onOpenHelpDesk && (
+                  <button
+                    type="button"
+                    className="empty-cta-btn secondary-btn"
+                    onClick={() => onOpenHelpDesk()}
+                  >
+                    <HelpCircle size={16} />
+                    <span>Campus Help Desk</span>
+                  </button>
+                )}
               </div>
             </div>
           ) : filteredProfiles.length === 0 ? (

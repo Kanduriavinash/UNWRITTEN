@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { UserRound, LockKeyhole, EyeOff, Eye, Check, ShieldCheck, Upload, UserCheck, Smartphone, Bell, Download } from 'lucide-react';
+import { UserRound, LockKeyhole, EyeOff, Eye, Check, ShieldCheck, Upload, UserCheck, Smartphone, Bell, Download, LogOut } from 'lucide-react';
 import type { CurrentUserProfile } from '../types';
 import { INTEREST_TAGS } from '../data/mockData';
 import { VerifiedBadge } from './VerifiedBadge';
@@ -11,6 +11,7 @@ interface ProfileTabProps {
   onOpenAuth: () => void;
   onOpenInstall?: () => void;
   onOpenNotifications?: () => void;
+  onSignOut?: () => void;
   isStandaloneApp?: boolean;
 }
 
@@ -20,6 +21,7 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
   onOpenAuth,
   onOpenInstall,
   onOpenNotifications,
+  onSignOut,
   isStandaloneApp = false
 }) => {
   const [formData, setFormData] = useState<CurrentUserProfile>({ ...user });
@@ -482,9 +484,17 @@ export const ProfileTab: React.FC<ProfileTabProps> = ({
             <h4>College Account Status</h4>
             <p>Signed in as: <strong>{user.email}</strong></p>
             <p>Institution Domain: <strong>@{user.collegeDomain}</strong></p>
-            <button className="auth-settings-btn" onClick={onOpenAuth}>
-              Supabase Backend / Account Settings →
-            </button>
+            <div className="account-card-actions">
+              <button className="auth-settings-btn" onClick={onOpenAuth}>
+                Supabase Backend / Account Settings →
+              </button>
+              {onSignOut && (
+                <button type="button" className="signout-btn" onClick={onSignOut}>
+                  <LogOut size={14} />
+                  <span>Sign Out / Switch Student</span>
+                </button>
+              )}
+            </div>
           </div>
         </div>
       </div>

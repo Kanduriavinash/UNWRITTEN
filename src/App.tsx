@@ -25,6 +25,7 @@ import type {
 
 import { syncStore } from './lib/syncStore';
 import { soundscape } from './lib/soundscapes';
+import { INITIAL_USER } from './data/mockData';
 
 export default function App() {
   const [showPrologue, setShowPrologue] = useState<boolean>(() => {
@@ -212,6 +213,18 @@ export default function App() {
     showToast('Local campus data cleared.');
   };
 
+  // Sign out and reset authentication session
+  const handleSignOut = () => {
+    localStorage.removeItem('unwritten_current_student_profile');
+    const resetUser: CurrentUserProfile = {
+      ...INITIAL_USER,
+      isAuthenticated: false
+    };
+    setCurrentUser(resetUser);
+    syncStore.saveActivePersona(resetUser);
+    showToast('Signed out of campus session. 👋');
+  };
+
   // Sent request IDs for current user
   const sentRequestIds = outgoingRequests.map((r) => r.receiverId);
 
@@ -284,6 +297,7 @@ export default function App() {
         currentUser={currentUser}
         onSwitchUser={handleSwitchUser}
         onResetDemo={handleResetDemo}
+        onSignOut={handleSignOut}
         onOpenPrologue={() => setShowPrologue(true)}
         onOpenHelpDesk={() => setHelpDeskOpen(true)}
         onOpenNotifications={() => setNotificationModalOpen(true)}
@@ -347,6 +361,7 @@ export default function App() {
             user={currentUser}
             onOpenInstall={() => setInstallModalOpen(true)}
             onOpenNotifications={() => setNotificationModalOpen(true)}
+            onSignOut={handleSignOut}
             isStandaloneApp={isStandaloneApp}
             onUpdateUser={(updated) => {
               setCurrentUser(updated);

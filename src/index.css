@@ -6763,3 +6763,89 @@ input:checked + .slider:before {
   from { opacity: 0; transform: translateY(-4px); }
   to { opacity: 1; transform: translateY(0); }
 }
+
+/* Campus Invite Quote Card & WhatsApp Sharing */
+.campus-quote-card {
+  margin: 1.25rem auto 1.5rem auto;
+  max-width: 580px;
+  padding: 1.2rem 1.6rem;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.04) 0%, rgba(138, 92, 246, 0.09) 100%);
+  border: 1px solid rgba(138, 92, 246, 0.28);
+  border-radius: 16px;
+  position: relative;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+  backdrop-filter: blur(8px);
+}
+
+.campus-quote-text {
+  font-size: 1.05rem;
+  line-height: 1.65;
+  color: #f5effe;
+  font-weight: 500;
+  margin: 0;
+  text-align: center;
+}
+
+.campus-quote-text strong {
+  color: #d8b4fe;
+  font-weight: 700;
+}
+
+.empty-cta-btn.whatsapp-share-btn {
+  background: #25d366 !important;
+  color: #072e12 !important;
+  font-weight: 700 !important;
+  border: none !important;
+  box-shadow: 0 4px 18px rgba(37, 211, 102, 0.35) !important;
+  transition: all 0.2s ease !important;
+}
+
+.empty-cta-btn.whatsapp-share-btn:hover {
+  background: #20bd5a !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 24px rgba(37, 211, 102, 0.55) !important;
+}
+
+/* Sign Out Actions */
+.account-card-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+}
+
+.signout-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 18px;
+  border-radius: 999px;
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  background: rgba(239, 68, 68, 0.08);
+  color: #fca5a5;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.signout-btn:hover {
+  background: rgba(239, 68, 68, 0.2);
+  border-color: rgba(239, 68, 68, 0.65);
+  color: #fee2e2;
+  transform: translateY(-1px);
+}
+
+.account-action-item.signout-action-item {
+  color: #fca5a5 !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  margin-top: 4px;
+  padding-top: 10px;
+}
+
+.account-action-item.signout-action-item:hover {
+  background: rgba(239, 68, 68, 0.12) !important;
+  color: #fee2e2 !important;
+}
+
